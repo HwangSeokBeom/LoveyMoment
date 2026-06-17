@@ -1,0 +1,524 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0177C20083BA40361B5D8357 /* PoCTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCECC37CDD6888EFEED98103 /* PoCTheme.swift */; };
+		2066B4D34FA8CA05F69C4B8B /* AppSplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30EC856E0E4EF5A54F8C895 /* AppSplashView.swift */; };
+		4BF063AF97C69073CBB8FCE8 /* CharacterAvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91F06DD17AEC4E04663DCFA1 /* CharacterAvatarView.swift */; };
+		5D0A77F2E89CF3E91B2895DD /* LoveyMomentStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B503A4223820F28198CB7CC /* LoveyMomentStore.swift */; };
+		67028C47EDF174218E45343D /* LocalConversationScenarioGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10CA79944D06F96FEA57D9C1 /* LocalConversationScenarioGenerator.swift */; };
+		6ACCD2690AC7666D1C90E316 /* MomentPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CC57B199A0674AF86241854 /* MomentPreviewView.swift */; };
+		6C3EF619A88BA8A6495BF3BA /* CharacterDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2DB05FF42AF50ADBFED31126 /* CharacterDetailView.swift */; };
+		6EEBE1EC7311F46100CE21AA /* PoCBadgeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3542A0C7BE61E5C019FAF26 /* PoCBadgeView.swift */; };
+		71376EF8C2EA38A8809CC674 /* MomentAnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1BED172C993EFAB9EA8E4E1 /* MomentAnalysisView.swift */; };
+		72C6DB330AD37099B25285A3 /* HealthKitSleepSignalProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A6E73582EF476A0DAB98139 /* HealthKitSleepSignalProvider.swift */; };
+		81BC25DB547369D2140B0273 /* AppRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 299D5F60FF2715D9564EC708 /* AppRootView.swift */; };
+		83482EF4450403840159CA08 /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F4516D442D1B0D1A04D741 /* AppEnvironment.swift */; };
+		83778C4645E8841EFD372331 /* CharacterWorldListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF6B090A0AAF8B623C4FE04 /* CharacterWorldListView.swift */; };
+		84C0D7E94B70786CAD08366A /* PoCDiagnosticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BC50702DFBD3BF19C0ED09 /* PoCDiagnosticsView.swift */; };
+		85D6C786D0ED5D4C9FDF0FE0 /* NativeFoundationModelConversationGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8784153DE228283BBF31C15 /* NativeFoundationModelConversationGenerator.swift */; };
+		A009405CBD3C6FAB06295ABF /* CharacterPortraitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98909F8F15F8402D15F4D590 /* CharacterPortraitView.swift */; };
+		B087FA05A0CC1BC8EDF246AA /* AppNotificationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0471D673E5398DF9E773F02A /* AppNotificationDelegate.swift */; };
+		B7E4F190291AFA7A632226EC /* MockSleepSignalProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AA496281036FA08D3FA9711 /* MockSleepSignalProvider.swift */; };
+		BD9DCD32AFB54075C937FFC8 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31DE4F02563DE58577657ACD /* ChatView.swift */; };
+		C1751AF50D2E4FF0E4B9E29C /* MockCharacterRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2C8D2002EE89A070898CA0A /* MockCharacterRepository.swift */; };
+		C32C04E637866FEFFC5988C2 /* InAppMomentPreviewScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E0C5159481FC9B9292F90C3 /* InAppMomentPreviewScheduler.swift */; };
+		D37BCBE771B226FD440E2CC3 /* ServiceProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = A36E5CD2E08450F314ECD364 /* ServiceProtocols.swift */; };
+		DD13D0EE761410CC9FDB0235 /* LoveyMomentApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66F454101113F41671B67D38 /* LoveyMomentApp.swift */; };
+		E4C3F7F97A498B8A06AFF922 /* CompositeConversationGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE00583B72EF67494606388 /* CompositeConversationGenerator.swift */; };
+		E8159F48660260EF6C39DF56 /* MockMomentAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB44AC0BE249E26BBC0EC53 /* MockMomentAnalyzer.swift */; };
+		F17BDDFB25374C8F0D1349F8 /* AppNotificationRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = E670DF6D7F7ED7A91E480961 /* AppNotificationRoute.swift */; };
+		F3B8308CA25F104BA7637764 /* LocalMomentNotificationScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12CFB64E74CDAD31650CD6CA /* LocalMomentNotificationScheduler.swift */; };
+		F405DCB05DF17CEDAB79E493 /* CoreModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5DF392D2B18CC237F4C71C5 /* CoreModels.swift */; };
+		F99A6D7E113E9CEF017E041E /* ConversationGenerationStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11D64D975B0EAA0E05149A3B /* ConversationGenerationStatus.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0471D673E5398DF9E773F02A /* AppNotificationDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppNotificationDelegate.swift; sourceTree = "<group>"; };
+		0E0C5159481FC9B9292F90C3 /* InAppMomentPreviewScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppMomentPreviewScheduler.swift; sourceTree = "<group>"; };
+		10CA79944D06F96FEA57D9C1 /* LocalConversationScenarioGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalConversationScenarioGenerator.swift; sourceTree = "<group>"; };
+		11D64D975B0EAA0E05149A3B /* ConversationGenerationStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationGenerationStatus.swift; sourceTree = "<group>"; };
+		12CFB64E74CDAD31650CD6CA /* LocalMomentNotificationScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalMomentNotificationScheduler.swift; sourceTree = "<group>"; };
+		299D5F60FF2715D9564EC708 /* AppRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRootView.swift; sourceTree = "<group>"; };
+		2AA496281036FA08D3FA9711 /* MockSleepSignalProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockSleepSignalProvider.swift; sourceTree = "<group>"; };
+		2DB05FF42AF50ADBFED31126 /* CharacterDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterDetailView.swift; sourceTree = "<group>"; };
+		31DE4F02563DE58577657ACD /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
+		5B503A4223820F28198CB7CC /* LoveyMomentStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoveyMomentStore.swift; sourceTree = "<group>"; };
+		66F454101113F41671B67D38 /* LoveyMomentApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoveyMomentApp.swift; sourceTree = "<group>"; };
+		70F4516D442D1B0D1A04D741 /* AppEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvironment.swift; sourceTree = "<group>"; };
+		7AE00583B72EF67494606388 /* CompositeConversationGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositeConversationGenerator.swift; sourceTree = "<group>"; };
+		8A6E73582EF476A0DAB98139 /* HealthKitSleepSignalProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitSleepSignalProvider.swift; sourceTree = "<group>"; };
+		8CC57B199A0674AF86241854 /* MomentPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MomentPreviewView.swift; sourceTree = "<group>"; };
+		91F06DD17AEC4E04663DCFA1 /* CharacterAvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterAvatarView.swift; sourceTree = "<group>"; };
+		98909F8F15F8402D15F4D590 /* CharacterPortraitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterPortraitView.swift; sourceTree = "<group>"; };
+		A36E5CD2E08450F314ECD364 /* ServiceProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceProtocols.swift; sourceTree = "<group>"; };
+		BBE6A76C890F4CEADB7F45AF /* LoveyMoment.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LoveyMoment.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		C0BC50702DFBD3BF19C0ED09 /* PoCDiagnosticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoCDiagnosticsView.swift; sourceTree = "<group>"; };
+		C30EC856E0E4EF5A54F8C895 /* AppSplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSplashView.swift; sourceTree = "<group>"; };
+		D3542A0C7BE61E5C019FAF26 /* PoCBadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoCBadgeView.swift; sourceTree = "<group>"; };
+		D5DF392D2B18CC237F4C71C5 /* CoreModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreModels.swift; sourceTree = "<group>"; };
+		DCECC37CDD6888EFEED98103 /* PoCTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoCTheme.swift; sourceTree = "<group>"; };
+		E1BED172C993EFAB9EA8E4E1 /* MomentAnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MomentAnalysisView.swift; sourceTree = "<group>"; };
+		E2C8D2002EE89A070898CA0A /* MockCharacterRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockCharacterRepository.swift; sourceTree = "<group>"; };
+		E670DF6D7F7ED7A91E480961 /* AppNotificationRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppNotificationRoute.swift; sourceTree = "<group>"; };
+		E8784153DE228283BBF31C15 /* NativeFoundationModelConversationGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeFoundationModelConversationGenerator.swift; sourceTree = "<group>"; };
+		EAB44AC0BE249E26BBC0EC53 /* MockMomentAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockMomentAnalyzer.swift; sourceTree = "<group>"; };
+		ECF6B090A0AAF8B623C4FE04 /* CharacterWorldListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterWorldListView.swift; sourceTree = "<group>"; };
+		F17635DC0083A1F14D338AC1 /* LoveyMoment.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LoveyMoment.entitlements; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		0DAC85088DFBC33749D5F6D6 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				D5DF392D2B18CC237F4C71C5 /* CoreModels.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		108249DB88ADB980472B2662 = {
+			isa = PBXGroup;
+			children = (
+				308AC8E38E0B3A3F49F4BF27 /* LoveyMoment */,
+				D294E0716FBEC0B2E17F5087 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		1E182616E4F6266E5649ACFD /* Diagnostics */ = {
+			isa = PBXGroup;
+			children = (
+				C0BC50702DFBD3BF19C0ED09 /* PoCDiagnosticsView.swift */,
+			);
+			path = Diagnostics;
+			sourceTree = "<group>";
+		};
+		227D06970628F6616DD3602B /* Notification */ = {
+			isa = PBXGroup;
+			children = (
+				0471D673E5398DF9E773F02A /* AppNotificationDelegate.swift */,
+				0E0C5159481FC9B9292F90C3 /* InAppMomentPreviewScheduler.swift */,
+				12CFB64E74CDAD31650CD6CA /* LocalMomentNotificationScheduler.swift */,
+			);
+			path = Notification;
+			sourceTree = "<group>";
+		};
+		308AC8E38E0B3A3F49F4BF27 /* LoveyMoment */ = {
+			isa = PBXGroup;
+			children = (
+				F17635DC0083A1F14D338AC1 /* LoveyMoment.entitlements */,
+				570AFABF89741C7A57AE366E /* App */,
+				699344C8BCD0238AE64E317B /* Features */,
+				0DAC85088DFBC33749D5F6D6 /* Models */,
+				AFE4299FEDF1FC259DA5CBF4 /* Services */,
+			);
+			path = LoveyMoment;
+			sourceTree = "<group>";
+		};
+		51AF21B0E3C6B370DA242568 /* CharacterWorldList */ = {
+			isa = PBXGroup;
+			children = (
+				2DB05FF42AF50ADBFED31126 /* CharacterDetailView.swift */,
+				ECF6B090A0AAF8B623C4FE04 /* CharacterWorldListView.swift */,
+			);
+			path = CharacterWorldList;
+			sourceTree = "<group>";
+		};
+		54FD91DC8F5D3794880609CF /* Shared */ = {
+			isa = PBXGroup;
+			children = (
+				91F06DD17AEC4E04663DCFA1 /* CharacterAvatarView.swift */,
+				98909F8F15F8402D15F4D590 /* CharacterPortraitView.swift */,
+				D3542A0C7BE61E5C019FAF26 /* PoCBadgeView.swift */,
+				DCECC37CDD6888EFEED98103 /* PoCTheme.swift */,
+			);
+			path = Shared;
+			sourceTree = "<group>";
+		};
+		570AFABF89741C7A57AE366E /* App */ = {
+			isa = PBXGroup;
+			children = (
+				70F4516D442D1B0D1A04D741 /* AppEnvironment.swift */,
+				E670DF6D7F7ED7A91E480961 /* AppNotificationRoute.swift */,
+				299D5F60FF2715D9564EC708 /* AppRootView.swift */,
+				C30EC856E0E4EF5A54F8C895 /* AppSplashView.swift */,
+				66F454101113F41671B67D38 /* LoveyMomentApp.swift */,
+				5B503A4223820F28198CB7CC /* LoveyMomentStore.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		5D8E089CA15B018875900A2F /* MomentAnalysis */ = {
+			isa = PBXGroup;
+			children = (
+				E1BED172C993EFAB9EA8E4E1 /* MomentAnalysisView.swift */,
+			);
+			path = MomentAnalysis;
+			sourceTree = "<group>";
+		};
+		5E3A35E43BFB6F76324AE577 /* Conversation */ = {
+			isa = PBXGroup;
+			children = (
+				7AE00583B72EF67494606388 /* CompositeConversationGenerator.swift */,
+				11D64D975B0EAA0E05149A3B /* ConversationGenerationStatus.swift */,
+				10CA79944D06F96FEA57D9C1 /* LocalConversationScenarioGenerator.swift */,
+				E8784153DE228283BBF31C15 /* NativeFoundationModelConversationGenerator.swift */,
+			);
+			path = Conversation;
+			sourceTree = "<group>";
+		};
+		699344C8BCD0238AE64E317B /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				51AF21B0E3C6B370DA242568 /* CharacterWorldList */,
+				8E29A69A8CC3BD0F5858B972 /* Chat */,
+				1E182616E4F6266E5649ACFD /* Diagnostics */,
+				5D8E089CA15B018875900A2F /* MomentAnalysis */,
+				783BB346B0A2B1200E360C61 /* MomentPreview */,
+				54FD91DC8F5D3794880609CF /* Shared */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		783BB346B0A2B1200E360C61 /* MomentPreview */ = {
+			isa = PBXGroup;
+			children = (
+				8CC57B199A0674AF86241854 /* MomentPreviewView.swift */,
+			);
+			path = MomentPreview;
+			sourceTree = "<group>";
+		};
+		8CEF7525B5A9D74D4EC73325 /* Sleep */ = {
+			isa = PBXGroup;
+			children = (
+				8A6E73582EF476A0DAB98139 /* HealthKitSleepSignalProvider.swift */,
+			);
+			path = Sleep;
+			sourceTree = "<group>";
+		};
+		8E29A69A8CC3BD0F5858B972 /* Chat */ = {
+			isa = PBXGroup;
+			children = (
+				31DE4F02563DE58577657ACD /* ChatView.swift */,
+			);
+			path = Chat;
+			sourceTree = "<group>";
+		};
+		AFE4299FEDF1FC259DA5CBF4 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				A36E5CD2E08450F314ECD364 /* ServiceProtocols.swift */,
+				5E3A35E43BFB6F76324AE577 /* Conversation */,
+				C8BB37B339B41D4420AAE445 /* Mock */,
+				227D06970628F6616DD3602B /* Notification */,
+				8CEF7525B5A9D74D4EC73325 /* Sleep */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		C8BB37B339B41D4420AAE445 /* Mock */ = {
+			isa = PBXGroup;
+			children = (
+				E2C8D2002EE89A070898CA0A /* MockCharacterRepository.swift */,
+				EAB44AC0BE249E26BBC0EC53 /* MockMomentAnalyzer.swift */,
+				2AA496281036FA08D3FA9711 /* MockSleepSignalProvider.swift */,
+			);
+			path = Mock;
+			sourceTree = "<group>";
+		};
+		D294E0716FBEC0B2E17F5087 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BBE6A76C890F4CEADB7F45AF /* LoveyMoment.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		C8AED18F0B912A91BE038B7A /* LoveyMoment */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D78D81FB4A13B93BD09A0CDB /* Build configuration list for PBXNativeTarget "LoveyMoment" */;
+			buildPhases = (
+				C4B6DE187BA6430BFEEB39A1 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LoveyMoment;
+			packageProductDependencies = (
+			);
+			productName = LoveyMoment;
+			productReference = BBE6A76C890F4CEADB7F45AF /* LoveyMoment.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C645FCEB0EF5D8416527BD5E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+			};
+			buildConfigurationList = 9C15E5B98D1A01E63113C50C /* Build configuration list for PBXProject "LoveyMoment" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 108249DB88ADB980472B2662;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = D294E0716FBEC0B2E17F5087 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				C8AED18F0B912A91BE038B7A /* LoveyMoment */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		C4B6DE187BA6430BFEEB39A1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				83482EF4450403840159CA08 /* AppEnvironment.swift in Sources */,
+				B087FA05A0CC1BC8EDF246AA /* AppNotificationDelegate.swift in Sources */,
+				F17BDDFB25374C8F0D1349F8 /* AppNotificationRoute.swift in Sources */,
+				81BC25DB547369D2140B0273 /* AppRootView.swift in Sources */,
+				2066B4D34FA8CA05F69C4B8B /* AppSplashView.swift in Sources */,
+				4BF063AF97C69073CBB8FCE8 /* CharacterAvatarView.swift in Sources */,
+				6C3EF619A88BA8A6495BF3BA /* CharacterDetailView.swift in Sources */,
+				A009405CBD3C6FAB06295ABF /* CharacterPortraitView.swift in Sources */,
+				83778C4645E8841EFD372331 /* CharacterWorldListView.swift in Sources */,
+				BD9DCD32AFB54075C937FFC8 /* ChatView.swift in Sources */,
+				E4C3F7F97A498B8A06AFF922 /* CompositeConversationGenerator.swift in Sources */,
+				F99A6D7E113E9CEF017E041E /* ConversationGenerationStatus.swift in Sources */,
+				F405DCB05DF17CEDAB79E493 /* CoreModels.swift in Sources */,
+				72C6DB330AD37099B25285A3 /* HealthKitSleepSignalProvider.swift in Sources */,
+				C32C04E637866FEFFC5988C2 /* InAppMomentPreviewScheduler.swift in Sources */,
+				67028C47EDF174218E45343D /* LocalConversationScenarioGenerator.swift in Sources */,
+				F3B8308CA25F104BA7637764 /* LocalMomentNotificationScheduler.swift in Sources */,
+				DD13D0EE761410CC9FDB0235 /* LoveyMomentApp.swift in Sources */,
+				5D0A77F2E89CF3E91B2895DD /* LoveyMomentStore.swift in Sources */,
+				C1751AF50D2E4FF0E4B9E29C /* MockCharacterRepository.swift in Sources */,
+				E8159F48660260EF6C39DF56 /* MockMomentAnalyzer.swift in Sources */,
+				B7E4F190291AFA7A632226EC /* MockSleepSignalProvider.swift in Sources */,
+				71376EF8C2EA38A8809CC674 /* MomentAnalysisView.swift in Sources */,
+				6ACCD2690AC7666D1C90E316 /* MomentPreviewView.swift in Sources */,
+				85D6C786D0ED5D4C9FDF0FE0 /* NativeFoundationModelConversationGenerator.swift in Sources */,
+				6EEBE1EC7311F46100CE21AA /* PoCBadgeView.swift in Sources */,
+				84C0D7E94B70786CAD08366A /* PoCDiagnosticsView.swift in Sources */,
+				0177C20083BA40361B5D8357 /* PoCTheme.swift in Sources */,
+				D37BCBE771B226FD440E2CC3 /* ServiceProtocols.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		01B48B407A308728577B5558 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		5D585974B789F188010954A8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = LoveyMoment/LoveyMoment.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = 63SB2B8YJ5;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Lovey Moment";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Lovey Moment가 취침/기상 리듬을 추정해 캐릭터 Moment 알림 시간을 맞추기 위해 수면 분석 데이터를 읽습니다.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.loveymoment.poc;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		AF2808261EE6CCE817C83493 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = "";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		E305875388AEA16EC832D4AF /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = LoveyMoment/LoveyMoment.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = 63SB2B8YJ5;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Lovey Moment";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "Lovey Moment가 취침/기상 리듬을 추정해 캐릭터 Moment 알림 시간을 맞추기 위해 수면 분석 데이터를 읽습니다.";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.loveymoment.poc;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		9C15E5B98D1A01E63113C50C /* Build configuration list for PBXProject "LoveyMoment" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				01B48B407A308728577B5558 /* Debug */,
+				AF2808261EE6CCE817C83493 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		D78D81FB4A13B93BD09A0CDB /* Build configuration list for PBXNativeTarget "LoveyMoment" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5D585974B789F188010954A8 /* Debug */,
+				E305875388AEA16EC832D4AF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = C645FCEB0EF5D8416527BD5E /* Project object */;
+}
