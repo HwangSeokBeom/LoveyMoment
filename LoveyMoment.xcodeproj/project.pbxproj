@@ -8,8 +8,18 @@
 
 /* Begin PBXBuildFile section */
 		0177C20083BA40361B5D8357 /* PoCTheme.swift in Sources */ = {isa = PBXBuildFile; fileRef = DCECC37CDD6888EFEED98103 /* PoCTheme.swift */; };
+		0E772F5389D316589C1A49C9 /* MomentHubView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 388C78BB098F364567489635 /* MomentHubView.swift */; };
+		1CC2913D50C8A5A5061C7BFB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 127199D3AA0304B27FA17D25 /* Assets.xcassets */; };
 		2066B4D34FA8CA05F69C4B8B /* AppSplashView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C30EC856E0E4EF5A54F8C895 /* AppSplashView.swift */; };
+		26C9B7580721AA1C061252CD /* LocalCharacterNotificationScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B58E5A78B4BBFEEBF827D9C /* LocalCharacterNotificationScheduler.swift */; };
+		271CF747158EE0619AA6B6E8 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E33F13892BF424009BB58BC /* MainTabView.swift */; };
+		31EA3FC32CE05787A72B976C /* SignalHomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B8555352F27C9C7F86D0D7 /* SignalHomeView.swift */; };
+		35716BE2EF778FD46907A148 /* MyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 78476A10C8C1B744508C01B5 /* MyView.swift */; };
+		40813AF7040D1C235232196B /* MockDatingSignalAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4A4656AADFC8AB09D9F808E5 /* MockDatingSignalAnalyzer.swift */; };
+		492E1534F4D72D9216EE15D1 /* CharacterNotificationModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1BB0C70E8B64294EE418327A /* CharacterNotificationModels.swift */; };
 		4BF063AF97C69073CBB8FCE8 /* CharacterAvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91F06DD17AEC4E04663DCFA1 /* CharacterAvatarView.swift */; };
+		53E04C01A2002C79ACF1DB0F /* FavoriteConversationSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E6DAE33A7EB0F95C60136F9 /* FavoriteConversationSelectionView.swift */; };
+		559B765DB81CBBA71D941F58 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B420378420A5E5187EE80A95 /* HomeView.swift */; };
 		5D0A77F2E89CF3E91B2895DD /* LoveyMomentStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B503A4223820F28198CB7CC /* LoveyMomentStore.swift */; };
 		67028C47EDF174218E45343D /* LocalConversationScenarioGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10CA79944D06F96FEA57D9C1 /* LocalConversationScenarioGenerator.swift */; };
 		6ACCD2690AC7666D1C90E316 /* MomentPreviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8CC57B199A0674AF86241854 /* MomentPreviewView.swift */; };
@@ -21,62 +31,112 @@
 		83482EF4450403840159CA08 /* AppEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 70F4516D442D1B0D1A04D741 /* AppEnvironment.swift */; };
 		83778C4645E8841EFD372331 /* CharacterWorldListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF6B090A0AAF8B623C4FE04 /* CharacterWorldListView.swift */; };
 		84C0D7E94B70786CAD08366A /* PoCDiagnosticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C0BC50702DFBD3BF19C0ED09 /* PoCDiagnosticsView.swift */; };
+		85A762422A0B83396592DEBB /* CharacterNotificationComposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDA93FBE0064C9D9175BD8F4 /* CharacterNotificationComposer.swift */; };
 		85D6C786D0ED5D4C9FDF0FE0 /* NativeFoundationModelConversationGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = E8784153DE228283BBF31C15 /* NativeFoundationModelConversationGenerator.swift */; };
+		900F85F047AAC58BABCD505A /* LoveyMomentStore+DatingSignal.swift in Sources */ = {isa = PBXBuildFile; fileRef = C8D618B59653700CBF7EB6F6 /* LoveyMomentStore+DatingSignal.swift */; };
 		A009405CBD3C6FAB06295ABF /* CharacterPortraitView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 98909F8F15F8402D15F4D590 /* CharacterPortraitView.swift */; };
+		AC994D3C96C02F76DC8D44E7 /* ChatListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8581459A76AE7B4FDCD4D094 /* ChatListView.swift */; };
 		B087FA05A0CC1BC8EDF246AA /* AppNotificationDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0471D673E5398DF9E773F02A /* AppNotificationDelegate.swift */; };
+		B4181153C88B0594E8490287 /* ConversationOutputSanitizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEA1397019363C81E43DE509 /* ConversationOutputSanitizer.swift */; };
 		B7E4F190291AFA7A632226EC /* MockSleepSignalProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AA496281036FA08D3FA9711 /* MockSleepSignalProvider.swift */; };
 		BD9DCD32AFB54075C937FFC8 /* ChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31DE4F02563DE58577657ACD /* ChatView.swift */; };
 		C1751AF50D2E4FF0E4B9E29C /* MockCharacterRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = E2C8D2002EE89A070898CA0A /* MockCharacterRepository.swift */; };
 		C32C04E637866FEFFC5988C2 /* InAppMomentPreviewScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0E0C5159481FC9B9292F90C3 /* InAppMomentPreviewScheduler.swift */; };
+		C49158234D322326A81EB6CB /* DatingSignalConsentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 21BBC5DCB0248C9F74FCEE10 /* DatingSignalConsentView.swift */; };
+		CC4A9E24F570532CA3A38861 /* DatingCandidateAvatarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E83228FD09D4E2EF12237F3 /* DatingCandidateAvatarView.swift */; };
+		CF9834DCFDA6574B90CCD6D7 /* DatingPreferenceProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 39E2099C716A4F46EB5A7381 /* DatingPreferenceProfileView.swift */; };
+		D19FD212C9BCEB3AB4A843B1 /* LoveyMomentStore+CharacterNotifications.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93847BCFBC00F307E4B1FB14 /* LoveyMomentStore+CharacterNotifications.swift */; };
 		D37BCBE771B226FD440E2CC3 /* ServiceProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = A36E5CD2E08450F314ECD364 /* ServiceProtocols.swift */; };
+		D4B313DC08A243C7F7338955 /* MockDatingCandidateRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE31FE91E0C4388D04E79E34 /* MockDatingCandidateRepository.swift */; };
+		D60095C30250EC0E34DCCEC7 /* DatingMatchDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05BCC475734757E8827FDA73 /* DatingMatchDetailView.swift */; };
 		DD13D0EE761410CC9FDB0235 /* LoveyMomentApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66F454101113F41671B67D38 /* LoveyMomentApp.swift */; };
 		E4C3F7F97A498B8A06AFF922 /* CompositeConversationGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE00583B72EF67494606388 /* CompositeConversationGenerator.swift */; };
+		E7E6FE630D5BFBA1C63D769A /* DatingMatchRecommendationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31973460DB365D580E8EA6D4 /* DatingMatchRecommendationView.swift */; };
 		E8159F48660260EF6C39DF56 /* MockMomentAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EAB44AC0BE249E26BBC0EC53 /* MockMomentAnalyzer.swift */; };
+		EE01C675C523F2B92FB543B2 /* DatingSignalAnalyzer.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB7FA6FB8269D169458669DF /* DatingSignalAnalyzer.swift */; };
+		EFAED81A93737182FB4976A7 /* RelationshipPreferenceAnalysisView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8418C3492A4649E77CB314C /* RelationshipPreferenceAnalysisView.swift */; };
 		F17BDDFB25374C8F0D1349F8 /* AppNotificationRoute.swift in Sources */ = {isa = PBXBuildFile; fileRef = E670DF6D7F7ED7A91E480961 /* AppNotificationRoute.swift */; };
 		F3B8308CA25F104BA7637764 /* LocalMomentNotificationScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12CFB64E74CDAD31650CD6CA /* LocalMomentNotificationScheduler.swift */; };
 		F405DCB05DF17CEDAB79E493 /* CoreModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5DF392D2B18CC237F4C71C5 /* CoreModels.swift */; };
+		F5E78F00DE6A5569DF2FEBBE /* DatingSignalModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84511FE524E7FD40ADA719E8 /* DatingSignalModels.swift */; };
 		F99A6D7E113E9CEF017E041E /* ConversationGenerationStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 11D64D975B0EAA0E05149A3B /* ConversationGenerationStatus.swift */; };
+		FE8FF88B25E6000E17A213B0 /* NotificationCenterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59BFBB607F8342677148E309 /* NotificationCenterView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		0471D673E5398DF9E773F02A /* AppNotificationDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppNotificationDelegate.swift; sourceTree = "<group>"; };
+		05BCC475734757E8827FDA73 /* DatingMatchDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatingMatchDetailView.swift; sourceTree = "<group>"; };
 		0E0C5159481FC9B9292F90C3 /* InAppMomentPreviewScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppMomentPreviewScheduler.swift; sourceTree = "<group>"; };
 		10CA79944D06F96FEA57D9C1 /* LocalConversationScenarioGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalConversationScenarioGenerator.swift; sourceTree = "<group>"; };
 		11D64D975B0EAA0E05149A3B /* ConversationGenerationStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationGenerationStatus.swift; sourceTree = "<group>"; };
+		127199D3AA0304B27FA17D25 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		12CFB64E74CDAD31650CD6CA /* LocalMomentNotificationScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalMomentNotificationScheduler.swift; sourceTree = "<group>"; };
+		1BB0C70E8B64294EE418327A /* CharacterNotificationModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterNotificationModels.swift; sourceTree = "<group>"; };
+		21BBC5DCB0248C9F74FCEE10 /* DatingSignalConsentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatingSignalConsentView.swift; sourceTree = "<group>"; };
 		299D5F60FF2715D9564EC708 /* AppRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppRootView.swift; sourceTree = "<group>"; };
 		2AA496281036FA08D3FA9711 /* MockSleepSignalProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockSleepSignalProvider.swift; sourceTree = "<group>"; };
 		2DB05FF42AF50ADBFED31126 /* CharacterDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterDetailView.swift; sourceTree = "<group>"; };
+		31973460DB365D580E8EA6D4 /* DatingMatchRecommendationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatingMatchRecommendationView.swift; sourceTree = "<group>"; };
 		31DE4F02563DE58577657ACD /* ChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatView.swift; sourceTree = "<group>"; };
+		388C78BB098F364567489635 /* MomentHubView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MomentHubView.swift; sourceTree = "<group>"; };
+		39E2099C716A4F46EB5A7381 /* DatingPreferenceProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatingPreferenceProfileView.swift; sourceTree = "<group>"; };
+		3E83228FD09D4E2EF12237F3 /* DatingCandidateAvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatingCandidateAvatarView.swift; sourceTree = "<group>"; };
+		4A4656AADFC8AB09D9F808E5 /* MockDatingSignalAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDatingSignalAnalyzer.swift; sourceTree = "<group>"; };
+		59BFBB607F8342677148E309 /* NotificationCenterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationCenterView.swift; sourceTree = "<group>"; };
 		5B503A4223820F28198CB7CC /* LoveyMomentStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoveyMomentStore.swift; sourceTree = "<group>"; };
+		63B8555352F27C9C7F86D0D7 /* SignalHomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignalHomeView.swift; sourceTree = "<group>"; };
 		66F454101113F41671B67D38 /* LoveyMomentApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoveyMomentApp.swift; sourceTree = "<group>"; };
+		6E33F13892BF424009BB58BC /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		70F4516D442D1B0D1A04D741 /* AppEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvironment.swift; sourceTree = "<group>"; };
+		78476A10C8C1B744508C01B5 /* MyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyView.swift; sourceTree = "<group>"; };
 		7AE00583B72EF67494606388 /* CompositeConversationGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CompositeConversationGenerator.swift; sourceTree = "<group>"; };
+		84511FE524E7FD40ADA719E8 /* DatingSignalModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatingSignalModels.swift; sourceTree = "<group>"; };
+		8581459A76AE7B4FDCD4D094 /* ChatListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatListView.swift; sourceTree = "<group>"; };
 		8A6E73582EF476A0DAB98139 /* HealthKitSleepSignalProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitSleepSignalProvider.swift; sourceTree = "<group>"; };
 		8CC57B199A0674AF86241854 /* MomentPreviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MomentPreviewView.swift; sourceTree = "<group>"; };
 		91F06DD17AEC4E04663DCFA1 /* CharacterAvatarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterAvatarView.swift; sourceTree = "<group>"; };
+		93847BCFBC00F307E4B1FB14 /* LoveyMomentStore+CharacterNotifications.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LoveyMomentStore+CharacterNotifications.swift"; sourceTree = "<group>"; };
 		98909F8F15F8402D15F4D590 /* CharacterPortraitView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterPortraitView.swift; sourceTree = "<group>"; };
+		9B58E5A78B4BBFEEBF827D9C /* LocalCharacterNotificationScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalCharacterNotificationScheduler.swift; sourceTree = "<group>"; };
+		9E6DAE33A7EB0F95C60136F9 /* FavoriteConversationSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoriteConversationSelectionView.swift; sourceTree = "<group>"; };
 		A36E5CD2E08450F314ECD364 /* ServiceProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceProtocols.swift; sourceTree = "<group>"; };
+		B420378420A5E5187EE80A95 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; sourceTree = "<group>"; };
 		BBE6A76C890F4CEADB7F45AF /* LoveyMoment.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LoveyMoment.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C0BC50702DFBD3BF19C0ED09 /* PoCDiagnosticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoCDiagnosticsView.swift; sourceTree = "<group>"; };
 		C30EC856E0E4EF5A54F8C895 /* AppSplashView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSplashView.swift; sourceTree = "<group>"; };
+		C8D618B59653700CBF7EB6F6 /* LoveyMomentStore+DatingSignal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LoveyMomentStore+DatingSignal.swift"; sourceTree = "<group>"; };
+		CEA1397019363C81E43DE509 /* ConversationOutputSanitizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationOutputSanitizer.swift; sourceTree = "<group>"; };
 		D3542A0C7BE61E5C019FAF26 /* PoCBadgeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoCBadgeView.swift; sourceTree = "<group>"; };
 		D5DF392D2B18CC237F4C71C5 /* CoreModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoreModels.swift; sourceTree = "<group>"; };
+		D8418C3492A4649E77CB314C /* RelationshipPreferenceAnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelationshipPreferenceAnalysisView.swift; sourceTree = "<group>"; };
 		DCECC37CDD6888EFEED98103 /* PoCTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoCTheme.swift; sourceTree = "<group>"; };
 		E1BED172C993EFAB9EA8E4E1 /* MomentAnalysisView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MomentAnalysisView.swift; sourceTree = "<group>"; };
 		E2C8D2002EE89A070898CA0A /* MockCharacterRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockCharacterRepository.swift; sourceTree = "<group>"; };
 		E670DF6D7F7ED7A91E480961 /* AppNotificationRoute.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppNotificationRoute.swift; sourceTree = "<group>"; };
 		E8784153DE228283BBF31C15 /* NativeFoundationModelConversationGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeFoundationModelConversationGenerator.swift; sourceTree = "<group>"; };
 		EAB44AC0BE249E26BBC0EC53 /* MockMomentAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockMomentAnalyzer.swift; sourceTree = "<group>"; };
+		EB7FA6FB8269D169458669DF /* DatingSignalAnalyzer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatingSignalAnalyzer.swift; sourceTree = "<group>"; };
 		ECF6B090A0AAF8B623C4FE04 /* CharacterWorldListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterWorldListView.swift; sourceTree = "<group>"; };
+		EDA93FBE0064C9D9175BD8F4 /* CharacterNotificationComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterNotificationComposer.swift; sourceTree = "<group>"; };
+		EE31FE91E0C4388D04E79E34 /* MockDatingCandidateRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDatingCandidateRepository.swift; sourceTree = "<group>"; };
 		F17635DC0083A1F14D338AC1 /* LoveyMoment.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = LoveyMoment.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
+		093F21C5786B87005437FAE4 /* ChatList */ = {
+			isa = PBXGroup;
+			children = (
+				8581459A76AE7B4FDCD4D094 /* ChatListView.swift */,
+			);
+			path = ChatList;
+			sourceTree = "<group>";
+		};
 		0DAC85088DFBC33749D5F6D6 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				1BB0C70E8B64294EE418327A /* CharacterNotificationModels.swift */,
 				D5DF392D2B18CC237F4C71C5 /* CoreModels.swift */,
+				84511FE524E7FD40ADA719E8 /* DatingSignalModels.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -87,6 +147,15 @@
 				308AC8E38E0B3A3F49F4BF27 /* LoveyMoment */,
 				D294E0716FBEC0B2E17F5087 /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		1853762EC47C972580520ADD /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				B420378420A5E5187EE80A95 /* HomeView.swift */,
+				59BFBB607F8342677148E309 /* NotificationCenterView.swift */,
+			);
+			path = Home;
 			sourceTree = "<group>";
 		};
 		1E182616E4F6266E5649ACFD /* Diagnostics */ = {
@@ -101,7 +170,9 @@
 			isa = PBXGroup;
 			children = (
 				0471D673E5398DF9E773F02A /* AppNotificationDelegate.swift */,
+				EDA93FBE0064C9D9175BD8F4 /* CharacterNotificationComposer.swift */,
 				0E0C5159481FC9B9292F90C3 /* InAppMomentPreviewScheduler.swift */,
+				9B58E5A78B4BBFEEBF827D9C /* LocalCharacterNotificationScheduler.swift */,
 				12CFB64E74CDAD31650CD6CA /* LocalMomentNotificationScheduler.swift */,
 			);
 			path = Notification;
@@ -110,6 +181,7 @@
 		308AC8E38E0B3A3F49F4BF27 /* LoveyMoment */ = {
 			isa = PBXGroup;
 			children = (
+				127199D3AA0304B27FA17D25 /* Assets.xcassets */,
 				F17635DC0083A1F14D338AC1 /* LoveyMoment.entitlements */,
 				570AFABF89741C7A57AE366E /* App */,
 				699344C8BCD0238AE64E317B /* Features */,
@@ -148,8 +220,25 @@
 				C30EC856E0E4EF5A54F8C895 /* AppSplashView.swift */,
 				66F454101113F41671B67D38 /* LoveyMomentApp.swift */,
 				5B503A4223820F28198CB7CC /* LoveyMomentStore.swift */,
+				93847BCFBC00F307E4B1FB14 /* LoveyMomentStore+CharacterNotifications.swift */,
+				C8D618B59653700CBF7EB6F6 /* LoveyMomentStore+DatingSignal.swift */,
 			);
 			path = App;
+			sourceTree = "<group>";
+		};
+		5CE9D8DCFBEB6D14847F619E /* DatingSignal */ = {
+			isa = PBXGroup;
+			children = (
+				3E83228FD09D4E2EF12237F3 /* DatingCandidateAvatarView.swift */,
+				05BCC475734757E8827FDA73 /* DatingMatchDetailView.swift */,
+				31973460DB365D580E8EA6D4 /* DatingMatchRecommendationView.swift */,
+				39E2099C716A4F46EB5A7381 /* DatingPreferenceProfileView.swift */,
+				21BBC5DCB0248C9F74FCEE10 /* DatingSignalConsentView.swift */,
+				9E6DAE33A7EB0F95C60136F9 /* FavoriteConversationSelectionView.swift */,
+				D8418C3492A4649E77CB314C /* RelationshipPreferenceAnalysisView.swift */,
+				63B8555352F27C9C7F86D0D7 /* SignalHomeView.swift */,
+			);
+			path = DatingSignal;
 			sourceTree = "<group>";
 		};
 		5D8E089CA15B018875900A2F /* MomentAnalysis */ = {
@@ -165,6 +254,7 @@
 			children = (
 				7AE00583B72EF67494606388 /* CompositeConversationGenerator.swift */,
 				11D64D975B0EAA0E05149A3B /* ConversationGenerationStatus.swift */,
+				CEA1397019363C81E43DE509 /* ConversationOutputSanitizer.swift */,
 				10CA79944D06F96FEA57D9C1 /* LocalConversationScenarioGenerator.swift */,
 				E8784153DE228283BBF31C15 /* NativeFoundationModelConversationGenerator.swift */,
 			);
@@ -176,9 +266,15 @@
 			children = (
 				51AF21B0E3C6B370DA242568 /* CharacterWorldList */,
 				8E29A69A8CC3BD0F5858B972 /* Chat */,
+				093F21C5786B87005437FAE4 /* ChatList */,
+				5CE9D8DCFBEB6D14847F619E /* DatingSignal */,
 				1E182616E4F6266E5649ACFD /* Diagnostics */,
+				1853762EC47C972580520ADD /* Home */,
+				83CBFD3D694F5998B1B973A1 /* Main */,
 				5D8E089CA15B018875900A2F /* MomentAnalysis */,
+				987665A4F6ADD464D509BBC2 /* MomentHub */,
 				783BB346B0A2B1200E360C61 /* MomentPreview */,
+				C9986DC269C8D4801D1C58F8 /* My */,
 				54FD91DC8F5D3794880609CF /* Shared */,
 			);
 			path = Features;
@@ -190,6 +286,14 @@
 				8CC57B199A0674AF86241854 /* MomentPreviewView.swift */,
 			);
 			path = MomentPreview;
+			sourceTree = "<group>";
+		};
+		83CBFD3D694F5998B1B973A1 /* Main */ = {
+			isa = PBXGroup;
+			children = (
+				6E33F13892BF424009BB58BC /* MainTabView.swift */,
+			);
+			path = Main;
 			sourceTree = "<group>";
 		};
 		8CEF7525B5A9D74D4EC73325 /* Sleep */ = {
@@ -208,11 +312,20 @@
 			path = Chat;
 			sourceTree = "<group>";
 		};
+		987665A4F6ADD464D509BBC2 /* MomentHub */ = {
+			isa = PBXGroup;
+			children = (
+				388C78BB098F364567489635 /* MomentHubView.swift */,
+			);
+			path = MomentHub;
+			sourceTree = "<group>";
+		};
 		AFE4299FEDF1FC259DA5CBF4 /* Services */ = {
 			isa = PBXGroup;
 			children = (
 				A36E5CD2E08450F314ECD364 /* ServiceProtocols.swift */,
 				5E3A35E43BFB6F76324AE577 /* Conversation */,
+				DC4C5ADE00C583CB204CBB1F /* DatingSignal */,
 				C8BB37B339B41D4420AAE445 /* Mock */,
 				227D06970628F6616DD3602B /* Notification */,
 				8CEF7525B5A9D74D4EC73325 /* Sleep */,
@@ -230,12 +343,30 @@
 			path = Mock;
 			sourceTree = "<group>";
 		};
+		C9986DC269C8D4801D1C58F8 /* My */ = {
+			isa = PBXGroup;
+			children = (
+				78476A10C8C1B744508C01B5 /* MyView.swift */,
+			);
+			path = My;
+			sourceTree = "<group>";
+		};
 		D294E0716FBEC0B2E17F5087 /* Products */ = {
 			isa = PBXGroup;
 			children = (
 				BBE6A76C890F4CEADB7F45AF /* LoveyMoment.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		DC4C5ADE00C583CB204CBB1F /* DatingSignal */ = {
+			isa = PBXGroup;
+			children = (
+				EB7FA6FB8269D169458669DF /* DatingSignalAnalyzer.swift */,
+				EE31FE91E0C4388D04E79E34 /* MockDatingCandidateRepository.swift */,
+				4A4656AADFC8AB09D9F808E5 /* MockDatingSignalAnalyzer.swift */,
+			);
+			path = DatingSignal;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -246,6 +377,7 @@
 			buildConfigurationList = D78D81FB4A13B93BD09A0CDB /* Build configuration list for PBXNativeTarget "LoveyMoment" */;
 			buildPhases = (
 				C4B6DE187BA6430BFEEB39A1 /* Sources */,
+				0B393C663AD9CF2ECE9C6954 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -286,6 +418,17 @@
 		};
 /* End PBXProject section */
 
+/* Begin PBXResourcesBuildPhase section */
+		0B393C663AD9CF2ECE9C6954 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				1CC2913D50C8A5A5061C7BFB /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		C4B6DE187BA6430BFEEB39A1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
@@ -298,28 +441,52 @@
 				2066B4D34FA8CA05F69C4B8B /* AppSplashView.swift in Sources */,
 				4BF063AF97C69073CBB8FCE8 /* CharacterAvatarView.swift in Sources */,
 				6C3EF619A88BA8A6495BF3BA /* CharacterDetailView.swift in Sources */,
+				85A762422A0B83396592DEBB /* CharacterNotificationComposer.swift in Sources */,
+				492E1534F4D72D9216EE15D1 /* CharacterNotificationModels.swift in Sources */,
 				A009405CBD3C6FAB06295ABF /* CharacterPortraitView.swift in Sources */,
 				83778C4645E8841EFD372331 /* CharacterWorldListView.swift in Sources */,
+				AC994D3C96C02F76DC8D44E7 /* ChatListView.swift in Sources */,
 				BD9DCD32AFB54075C937FFC8 /* ChatView.swift in Sources */,
 				E4C3F7F97A498B8A06AFF922 /* CompositeConversationGenerator.swift in Sources */,
 				F99A6D7E113E9CEF017E041E /* ConversationGenerationStatus.swift in Sources */,
+				B4181153C88B0594E8490287 /* ConversationOutputSanitizer.swift in Sources */,
 				F405DCB05DF17CEDAB79E493 /* CoreModels.swift in Sources */,
+				CC4A9E24F570532CA3A38861 /* DatingCandidateAvatarView.swift in Sources */,
+				D60095C30250EC0E34DCCEC7 /* DatingMatchDetailView.swift in Sources */,
+				E7E6FE630D5BFBA1C63D769A /* DatingMatchRecommendationView.swift in Sources */,
+				CF9834DCFDA6574B90CCD6D7 /* DatingPreferenceProfileView.swift in Sources */,
+				EE01C675C523F2B92FB543B2 /* DatingSignalAnalyzer.swift in Sources */,
+				C49158234D322326A81EB6CB /* DatingSignalConsentView.swift in Sources */,
+				F5E78F00DE6A5569DF2FEBBE /* DatingSignalModels.swift in Sources */,
+				53E04C01A2002C79ACF1DB0F /* FavoriteConversationSelectionView.swift in Sources */,
 				72C6DB330AD37099B25285A3 /* HealthKitSleepSignalProvider.swift in Sources */,
+				559B765DB81CBBA71D941F58 /* HomeView.swift in Sources */,
 				C32C04E637866FEFFC5988C2 /* InAppMomentPreviewScheduler.swift in Sources */,
+				26C9B7580721AA1C061252CD /* LocalCharacterNotificationScheduler.swift in Sources */,
 				67028C47EDF174218E45343D /* LocalConversationScenarioGenerator.swift in Sources */,
 				F3B8308CA25F104BA7637764 /* LocalMomentNotificationScheduler.swift in Sources */,
 				DD13D0EE761410CC9FDB0235 /* LoveyMomentApp.swift in Sources */,
+				D19FD212C9BCEB3AB4A843B1 /* LoveyMomentStore+CharacterNotifications.swift in Sources */,
+				900F85F047AAC58BABCD505A /* LoveyMomentStore+DatingSignal.swift in Sources */,
 				5D0A77F2E89CF3E91B2895DD /* LoveyMomentStore.swift in Sources */,
+				271CF747158EE0619AA6B6E8 /* MainTabView.swift in Sources */,
 				C1751AF50D2E4FF0E4B9E29C /* MockCharacterRepository.swift in Sources */,
+				D4B313DC08A243C7F7338955 /* MockDatingCandidateRepository.swift in Sources */,
+				40813AF7040D1C235232196B /* MockDatingSignalAnalyzer.swift in Sources */,
 				E8159F48660260EF6C39DF56 /* MockMomentAnalyzer.swift in Sources */,
 				B7E4F190291AFA7A632226EC /* MockSleepSignalProvider.swift in Sources */,
 				71376EF8C2EA38A8809CC674 /* MomentAnalysisView.swift in Sources */,
+				0E772F5389D316589C1A49C9 /* MomentHubView.swift in Sources */,
 				6ACCD2690AC7666D1C90E316 /* MomentPreviewView.swift in Sources */,
+				35716BE2EF778FD46907A148 /* MyView.swift in Sources */,
 				85D6C786D0ED5D4C9FDF0FE0 /* NativeFoundationModelConversationGenerator.swift in Sources */,
+				FE8FF88B25E6000E17A213B0 /* NotificationCenterView.swift in Sources */,
 				6EEBE1EC7311F46100CE21AA /* PoCBadgeView.swift in Sources */,
 				84C0D7E94B70786CAD08366A /* PoCDiagnosticsView.swift in Sources */,
 				0177C20083BA40361B5D8357 /* PoCTheme.swift in Sources */,
+				EFAED81A93737182FB4976A7 /* RelationshipPreferenceAnalysisView.swift in Sources */,
 				D37BCBE771B226FD440E2CC3 /* ServiceProtocols.swift in Sources */,
+				31EA3FC32CE05787A72B976C /* SignalHomeView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -92,6 +92,7 @@ enum MockCharacterRepository {
                 personalitySummary: "차갑고 통제적인 말투를 쓰지만, 유저가 무리하는 순간에는 누구보다 빠르게 알아챈다.",
                 defaultToneKeywords: ["차가움", "압박", "숨은 관심", "돌봄"],
                 tags: ["학교 지배자", "은근한 돌봄", "썸 직전"],
+                categoryTags: ["학교 로맨스", "차가운 남주", "다정"],
                 profileImageName: nil,
                 generatedAvatarKey: "ice-boss",
                 worldSettingID: schoolWorldID,
@@ -99,7 +100,18 @@ enum MockCharacterRepository {
                 openingScene: "방과 후 텅 빈 복도. 한아는 학생회실 문에 기대어 있다가 유저가 지나가자 이름을 부른다.",
                 sleepMomentSettings: MomentSettings(),
                 creatorNote: "최근 업데이트: 한아의 질투/보호 반응이 밤 시간대 대화에서 더 선명하게 드러나도록 조정했어요.",
-                stats: CharacterStats(likesText: "12.8만", characterType: "학교 보스형", creatorName: "team Lovey", storyCount: 18, communityPosts: 324, updateNote: "새벽 답장 지연 이벤트 추가")
+                stats: CharacterStats(
+                    likeCount: 128_400,
+                    chatCount: 52_100,
+                    followerCount: 31_800,
+                    creatorDisplayName: "Lovey Originals",
+                    characterType: "차가운 남주",
+                    genreLabel: "학교 로맨스",
+                    storyCount: 18,
+                    communityPosts: 324,
+                    updateLabel: "새벽 답장 지연 에피소드 추가",
+                    momentAvailabilityLabel: "오늘 밤 Moment 가능"
+                )
             ),
             CharacterProfile(
                 id: yoonID,
@@ -110,6 +122,7 @@ enum MockCharacterRepository {
                 personalitySummary: "부드럽고 안정적인 말투로 유저의 하루를 기억한다. 서운함도 공격보다 고백처럼 꺼낸다.",
                 defaultToneKeywords: ["다정함", "오래된 친밀감", "조심스러운 고백"],
                 tags: ["소꿉친구", "다정", "친구에서 썸"],
+                categoryTags: ["소꿉친구", "다정"],
                 profileImageName: nil,
                 generatedAvatarKey: "sunny-friend",
                 worldSettingID: neighborhoodWorldID,
@@ -117,7 +130,18 @@ enum MockCharacterRepository {
                 openingScene: "비가 그친 동네 편의점 앞. 서윤은 젖은 우산을 털며 유저가 좋아하는 음료를 건넨다.",
                 sleepMomentSettings: MomentSettings(),
                 creatorNote: "서윤 루트는 친구라는 말이 점점 좁아지는 순간을 중심으로 업데이트 중입니다.",
-                stats: CharacterStats(likesText: "9.6만", characterType: "소꿉친구형", creatorName: "mildroom", storyCount: 22, communityPosts: 278, updateNote: "아침 약속 회상 대화 추가")
+                stats: CharacterStats(
+                    likeCount: 96_200,
+                    chatCount: 44_700,
+                    followerCount: 27_300,
+                    creatorDisplayName: "Moonlit Studio",
+                    characterType: "다정한 남주",
+                    genreLabel: "소꿉친구",
+                    storyCount: 22,
+                    communityPosts: 278,
+                    updateLabel: "아침 약속 회상 에피소드 추가",
+                    momentAvailabilityLabel: "오늘 밤 Moment 가능"
+                )
             ),
             CharacterProfile(
                 id: roID,
@@ -128,6 +152,7 @@ enum MockCharacterRepository {
                 personalitySummary: "장난기와 직진력이 강하다. 유저가 답장을 늦추면 티 나게 서운해하지만 금세 다시 꼬리를 흔든다.",
                 defaultToneKeywords: ["장난", "직진", "애교", "서운함"],
                 tags: ["연하", "댕댕이", "직진 고백"],
+                categoryTags: ["캠퍼스 로맨스", "직진 연하", "다정"],
                 profileImageName: nil,
                 generatedAvatarKey: "puppy-junior",
                 worldSettingID: campusWorldID,
@@ -135,7 +160,18 @@ enum MockCharacterRepository {
                 openingScene: "야간 축제가 끝난 캠퍼스 광장. 로이는 손목의 야광 팔찌를 흔들며 유저를 발견하고 뛰어온다.",
                 sleepMomentSettings: MomentSettings(),
                 creatorNote: "로이의 장난이 관계 진전 신호로 읽히는 분기들을 추가했습니다.",
-                stats: CharacterStats(likesText: "15.4만", characterType: "연하 댕댕이형", creatorName: "soda", storyCount: 16, communityPosts: 451, updateNote: "답장 지연 삐짐 패턴 추가")
+                stats: CharacterStats(
+                    likeCount: 154_900,
+                    chatCount: 61_500,
+                    followerCount: 38_200,
+                    creatorDisplayName: "SoftRoom",
+                    characterType: "직진 연하남",
+                    genreLabel: "캠퍼스 로맨스",
+                    storyCount: 16,
+                    communityPosts: 451,
+                    updateLabel: "답장 지연 삐짐 패턴 추가",
+                    momentAvailabilityLabel: "오늘 밤 Moment 가능"
+                )
             ),
             CharacterProfile(
                 id: kaelID,
@@ -146,6 +182,7 @@ enum MockCharacterRepository {
                 personalitySummary: "고요하고 집착적인 말투. 유저의 수면과 맥박을 빌미로 가까워지며 위험한 보호 본능을 드러낸다.",
                 defaultToneKeywords: ["위험", "집착", "고딕", "보호"],
                 tags: ["판타지", "뱀파이어", "위험한 다정함"],
+                categoryTags: ["판타지", "집착", "차가운 남주"],
                 profileImageName: nil,
                 generatedAvatarKey: "nocturne-vampire",
                 worldSettingID: nocturneWorldID,
@@ -153,7 +190,18 @@ enum MockCharacterRepository {
                 openingScene: "붉은 달이 뜬 저택의 온실. 카엘은 깨진 유리잔을 치우며 유저의 손끝 상처를 바라본다.",
                 sleepMomentSettings: MomentSettings(),
                 creatorNote: "카엘은 밤/새벽 신호에 가장 민감하게 반응하도록 Moment 톤을 조정했습니다.",
-                stats: CharacterStats(likesText: "18.1만", characterType: "다크 판타지형", creatorName: "nocturne", storyCount: 24, communityPosts: 612, updateNote: "잠들지 못한 새벽 이벤트 추가")
+                stats: CharacterStats(
+                    likeCount: 181_300,
+                    chatCount: 73_900,
+                    followerCount: 45_600,
+                    creatorDisplayName: "Night Archive",
+                    characterType: "집착 남주",
+                    genreLabel: "다크 판타지",
+                    storyCount: 24,
+                    communityPosts: 612,
+                    updateLabel: "잠들지 못한 새벽 에피소드 추가",
+                    momentAvailabilityLabel: "오늘 밤 Moment 가능"
+                )
             )
         ]
     }

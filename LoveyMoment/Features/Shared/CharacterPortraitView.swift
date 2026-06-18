@@ -1,35 +1,122 @@
 import SwiftUI
 import UIKit
 
+enum CharacterPortraitStyle {
+    case mini
+    case card
+    case hero
+    case message
+}
+
+/// 정사각형 portrait. 실제 생성 이미지 asset이 있으면 우선 표시하고,
+/// asset이 없을 때만 procedural portrait로 fallback한다.
 struct CharacterPortraitView: View {
     let character: CharacterProfile
     var size: CGFloat = 120
+    var style: CharacterPortraitStyle = .card
+
+    private var cornerRadius: CGFloat {
+        switch style {
+        case .message: return size * 0.5
+        case .mini: return max(10, size * 0.26)
+        case .card, .hero: return max(10, size * 0.12)
+        }
+    }
+
+    private var hasAsset: Bool {
+        UIImage(named: character.portraitAssetName) != nil
+    }
+
+    var body: some View {
+        PortraitFillContent(character: character)
+            .frame(width: size, height: size)
+            .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+            .overlay(
+                RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+                    .stroke(.white.opacity(0.18), lineWidth: 1)
+            )
+            .shadow(color: .black.opacity(0.28), radius: size * 0.12, y: size * 0.06)
+            .onAppear {
+                print("[CharacterPortrait] asset=\(character.portraitAssetName) found=\(hasAsset) style=\(style)")
+            }
+    }
+}
+
+/// 상세 화면 hero 영역용. 실제 이미지를 가로 가득 채우고 얼굴이 잘 보이도록 상단 정렬한다.
+struct CharacterHeroPortraitView: View {
+    let character: CharacterProfile
+    var height: CGFloat = 380
+
+    private var hasAsset: Bool {
+        UIImage(named: character.portraitAssetName) != nil
+    }
+
+    var body: some View {
+        PortraitFillContent(character: character, verticalAlignment: .top)
+            .frame(maxWidth: .infinity)
+            .frame(height: height)
+            .clipped()
+            .onAppear {
+                print("[CharacterPortrait] asset=\(character.portraitAssetName) found=\(hasAsset) style=hero")
+            }
+    }
+}
+
+/// 실제 asset 이미지를 채워 그리거나, asset이 없으면 procedural portrait를 그린다.
+private struct PortraitFillContent: View {
+    let character: CharacterProfile
+    var verticalAlignment: VerticalAlignment = .center
+
+    var body: some View {
+        if let uiImage = UIImage(named: character.portraitAssetName) {
+            Color.clear.overlay(
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment),
+                alignment: alignment
+            )
+            .clipped()
+        } else {
+            ProceduralPortraitContent(character: character)
+                .onAppear {
+                    print("[CharacterPortrait] asset=\(character.portraitAssetName) missing fallback=procedural")
+                }
+        }
+    }
+
+    private var alignment: Alignment {
+        switch verticalAlignment {
+        case .top: return .top
+        case .bottom: return .bottom
+        default: return .center
+        }
+    }
+}
+
+/// 기존 SwiftUI 도형 기반 portrait. asset이 없을 때만 사용되는 최종 fallback.
+private struct ProceduralPortraitContent: View {
+    let character: CharacterProfile
 
     private var palette: CharacterPortraitPalette {
         CharacterPortraitPalette.palette(for: character.generatedAvatarKey)
     }
 
-    private var cornerRadius: CGFloat {
-        max(8, size * 0.08)
-    }
-
     var body: some View {
-        ZStack {
-            BackgroundLayer(size: size, palette: palette)
-            BodyLayer(size: size, palette: palette)
-            HeadLayer(size: size, palette: palette)
-            HairLayer(size: size, palette: palette)
-            ExpressionLayer(size: size, palette: palette)
-            OutfitLayer(size: size, palette: palette)
-            PolishLayer(size: size, palette: palette)
+        GeometryReader { geo in
+            let size = min(geo.size.width, geo.size.height)
+            ZStack {
+                BackgroundLayer(size: size, palette: palette)
+                BodyLayer(size: size, palette: palette)
+                HeadLayer(size: size, palette: palette)
+                HairLayer(size: size, palette: palette)
+                ExpressionLayer(size: size, palette: palette)
+                OutfitLayer(size: size, palette: palette)
+                PolishLayer(size: size, palette: palette)
+            }
+            .frame(width: size, height: size)
+            .frame(width: geo.size.width, height: geo.size.height)
         }
-        .frame(width: size, height: size)
-        .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
-        .overlay(
-            RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                .stroke(.white.opacity(0.18), lineWidth: 1)
-        )
-        .shadow(color: palette.rimLight.opacity(0.26), radius: size * 0.16, y: size * 0.08)
     }
 }
 

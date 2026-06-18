@@ -35,61 +35,16 @@ struct CharacterWorldListView: View {
     }
 
     private var header: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("Lovey Moment")
-                        .font(.largeTitle.weight(.heavy))
-                        .foregroundStyle(.white)
+        VStack(alignment: .leading, spacing: 6) {
+            Text("보관함")
+                .font(.largeTitle.weight(.heavy))
+                .foregroundStyle(.white)
 
-                    Text("잠들기 전 끊긴 장면을, 알림으로 다시 여는 캐릭터 월드")
-                        .font(.subheadline)
-                        .foregroundStyle(.white.opacity(0.68))
-                        .fixedSize(horizontal: false, vertical: true)
-                }
-
-                Spacer()
-
-                Button(action: store.requestNotificationAuthorization) {
-                    Image(systemName: "bell.badge.fill")
-                        .font(.headline.weight(.bold))
-                        .foregroundStyle(PoCTheme.primary)
-                        .frame(width: 42, height: 42)
-                        .background(Circle().fill(Color.white.opacity(0.10)))
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("알림 권한 요청")
-
-                Button(action: store.openDiagnostics) {
-                    Image(systemName: "stethoscope")
-                        .font(.headline.weight(.bold))
-                        .foregroundStyle(PoCTheme.secondary)
-                        .frame(width: 42, height: 42)
-                        .background(Circle().fill(Color.white.opacity(0.10)))
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel("PoC 진단 화면")
-            }
-
-            HStack(spacing: 8) {
-                PoCBadgeView(title: nativeBadgeTitle)
-                PoCBadgeView(title: store.currentSleepDiagnostics.source.displayName)
-                PoCBadgeView(title: "Local Notification", color: PoCTheme.primary)
-                PoCBadgeView(title: "iOS 26 SDK")
-            }
+            Text("관심 등록한 캐릭터와, 잠들기 전 다시 열 수 있는 월드를 모았어요")
+                .font(.subheadline)
+                .foregroundStyle(.white.opacity(0.68))
+                .fixedSize(horizontal: false, vertical: true)
         }
-    }
-
-    private var nativeBadgeTitle: String {
-        let diagnostics = store.nativeLLMDiagnostics
-        if diagnostics.lastGenerationSucceeded,
-           diagnostics.lastGenerationMode == .nativeFoundationModel {
-            return "Native LLM verified"
-        }
-        if store.nativeLLMAvailability.isAvailable {
-            return "Native runtime ready"
-        }
-        return "Local fallback"
     }
 }
 
@@ -105,7 +60,7 @@ struct CharacterWorldCardView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
                 HStack(alignment: .top, spacing: 14) {
-                    CharacterPortraitView(character: character, size: 142)
+                    CharacterPortraitView(character: character, size: 152, style: .card)
 
                     VStack(alignment: .leading, spacing: 8) {
                         HStack(alignment: .firstTextBaseline) {
@@ -122,7 +77,7 @@ struct CharacterWorldCardView: View {
                             .foregroundStyle(.white.opacity(0.82))
                             .fixedSize(horizontal: false, vertical: true)
 
-                        Text(character.stats.likesText + " likes · " + character.stats.creatorName)
+                        Text("관심 \(character.stats.likeCountText) · 대화 \(character.stats.chatCountText) · \(character.stats.creatorDisplayName)")
                             .font(.caption)
                             .foregroundStyle(.white.opacity(0.5))
 

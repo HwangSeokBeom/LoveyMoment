@@ -24,7 +24,6 @@ struct MomentAnalysisView: View {
                 if let character = store.selectedCharacter {
                     analysisHero(character: character)
                 }
-                sleepDiagnosticsCard(store.currentSleepDiagnostics)
                 sleepCard(analysis.sleepSignal)
                 analysisCard(analysis)
                 MomentToggleSectionView(
@@ -85,7 +84,6 @@ struct MomentAnalysisView: View {
                         .font(.footnote)
                         .foregroundStyle(.white.opacity(0.66))
                         .fixedSize(horizontal: false, vertical: true)
-                    GeneratorDisclosureView()
                 }
             }
         }
@@ -97,7 +95,7 @@ struct MomentAnalysisView: View {
                 HStack {
                     SectionEyebrow(text: "수면 리듬")
                     Spacer()
-                    TagPill(text: sleepSignal.source == .healthKit ? "HealthKit" : "Mock fallback", color: sleepSignal.source == .healthKit ? PoCTheme.secondary : PoCTheme.primary)
+                    TagPill(text: sleepSignal.source == .healthKit ? "건강 앱 연결됨" : "기본 리듬", color: sleepSignal.source == .healthKit ? PoCTheme.secondary : PoCTheme.primary)
                 }
 
                 HStack(spacing: 10) {
@@ -111,39 +109,6 @@ struct MomentAnalysisView: View {
                     .font(.caption)
                     .foregroundStyle(.white.opacity(0.58))
                     .fixedSize(horizontal: false, vertical: true)
-            }
-        }
-    }
-
-    private func sleepDiagnosticsCard(_ diagnostics: SleepSignalDiagnostics) -> some View {
-        CardContainer {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    SectionEyebrow(text: "HealthKit 상태")
-                    Spacer()
-                    TagPill(
-                        text: diagnostics.source.displayName,
-                        color: diagnostics.source == .healthKitRealData ? PoCTheme.secondary : PoCTheme.primary
-                    )
-                }
-
-                if diagnostics.source != .healthKitRealData {
-                    InlineNoticeView(
-                        text: diagnostics.fallbackReason == "authorizationDenied" ? "건강 앱 권한을 허용하면 실제 수면 리듬으로 Moment를 생성할 수 있어요." : "최근 수면 데이터가 없어 PoC용 mock signal을 사용 중입니다.",
-                        icon: "heart.text.square.fill"
-                    )
-                }
-
-                AnalysisResultRowView(title: "권한 상태", value: diagnostics.authorizationStatus, icon: "lock.shield.fill")
-                AnalysisResultRowView(title: "샘플 수", value: "\(diagnostics.sampleCount)", icon: "number.circle.fill")
-                AnalysisResultRowView(title: "총 수면 시간", value: "\(diagnostics.totalSleepMinutes)분", icon: "bed.double.fill")
-                AnalysisResultRowView(title: "데이터 출처", value: diagnostics.dataSources.isEmpty ? "없음" : diagnostics.dataSources.joined(separator: ", "), icon: "waveform.path.ecg")
-                if let fallbackReason = diagnostics.fallbackReason {
-                    AnalysisResultRowView(title: "Fallback reason", value: fallbackReason, icon: "arrow.triangle.2.circlepath")
-                }
-                if let date = diagnostics.lastSampleDate {
-                    AnalysisResultRowView(title: "마지막 샘플", value: date.formatted(date: .abbreviated, time: .shortened), icon: "clock.fill")
-                }
             }
         }
     }

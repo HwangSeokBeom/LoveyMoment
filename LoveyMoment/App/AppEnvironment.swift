@@ -4,12 +4,16 @@ struct AppEnvironment {
     let sleepSignalProvider: SleepSignalProviding
     let momentAnalyzer: MomentAnalyzing
     let notificationScheduler: MomentNotificationScheduling
+    let characterNotificationScheduler: CharacterNotificationScheduling
     let conversationGenerator: ConversationGenerating
+    let datingSignalAnalyzer: DatingSignalAnalyzing
 
     static let live = AppEnvironment(
         sleepSignalProvider: CompositeSleepSignalProvider(),
         momentAnalyzer: MockMomentAnalyzer(),
         notificationScheduler: LocalMomentNotificationScheduler(),
-        conversationGenerator: CompositeConversationGenerator()
+        characterNotificationScheduler: LocalCharacterNotificationScheduler(),
+        conversationGenerator: CompositeConversationGenerator(),
+        datingSignalAnalyzer: MockDatingSignalAnalyzer()
     )
 }

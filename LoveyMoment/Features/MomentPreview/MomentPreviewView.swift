@@ -16,12 +16,6 @@ struct MomentPreviewView: View {
                         InlineNoticeView(text: "설정에서 알림을 허용하면 Moment 알림을 받을 수 있어요.", icon: "bell.slash.fill")
                     }
 
-                    NotificationStatusCardView(
-                        authorizationLabel: authorizationLabel,
-                        lastScheduledNotificationID: store.lastScheduledNotificationID,
-                        lastNotificationRoute: store.lastNotificationRoute
-                    )
-
                     ForEach(store.momentCards()) { moment in
                         NotificationPreviewCardView(
                             moment: moment,
@@ -87,7 +81,7 @@ struct MomentPreviewView: View {
                         .font(.title2.weight(.heavy))
                         .foregroundStyle(.white)
 
-                    Text("토글은 실제 로컬 알림 예약/취소와 연결돼요. payload에는 characterId, momentId, momentType, deepLinkTarget이 포함됩니다.")
+                    Text("토글을 켜면 잠들기 전·아침 알림이 예약돼요. 알림을 누르면 끊겼던 장면이 채팅으로 이어져요.")
                         .font(.subheadline)
                         .foregroundStyle(.white.opacity(0.68))
                         .fixedSize(horizontal: false, vertical: true)
@@ -173,44 +167,10 @@ struct NotificationPreviewCardView: View {
                             .font(.subheadline)
                             .foregroundStyle(.white.opacity(moment.isEnabled ? 0.88 : 0.42))
                             .fixedSize(horizontal: false, vertical: true)
-
-                        if let generationMode = moment.generationMode {
-                            TagPill(text: generationMode.badgeText, color: generationMode == .nativeFoundationModel ? PoCTheme.secondary : PoCTheme.primary)
-                        }
                     }
                 }
             }
         }
         .opacity(moment.isEnabled ? 1 : 0.58)
-    }
-}
-
-private struct NotificationStatusCardView: View {
-    let authorizationLabel: String
-    let lastScheduledNotificationID: String?
-    let lastNotificationRoute: AppNotificationRoute?
-
-    var body: some View {
-        CardContainer {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    SectionEyebrow(text: "Local Notification")
-                    Spacer()
-                    TagPill(text: authorizationLabel, color: PoCTheme.primary)
-                }
-
-                AnalysisResultRowView(title: "마지막 예약 ID", value: lastScheduledNotificationID ?? "없음", icon: "timer")
-                AnalysisResultRowView(title: "마지막 route", value: routeText, icon: "arrowshape.turn.up.left.fill")
-                Text("APNs remote push는 서버, 인증서, key, device token backend가 필요하므로 이번 PoC 범위에서는 local notification 딥링크만 구현합니다.")
-                    .font(.caption)
-                    .foregroundStyle(.white.opacity(0.58))
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-        }
-    }
-
-    private var routeText: String {
-        guard let route = lastNotificationRoute else { return "없음" }
-        return "characterId=\(route.characterId.uuidString.prefix(8)) momentId=\(route.momentId.uuidString.prefix(8)) target=\(route.deepLinkTarget)"
     }
 }

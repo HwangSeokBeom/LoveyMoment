@@ -9,6 +9,7 @@ struct CharacterProfile: Identifiable, Hashable {
     let personalitySummary: String
     let defaultToneKeywords: [String]
     let tags: [String]
+    let categoryTags: [String]
     let profileImageName: String?
     let generatedAvatarKey: String
     let worldSettingID: UUID
@@ -19,13 +20,47 @@ struct CharacterProfile: Identifiable, Hashable {
     let stats: CharacterStats
 }
 
+extension CharacterProfile {
+    /// 실제 생성 캐릭터 portrait asset 이름. asset이 없으면 procedural fallback이 사용된다.
+    var portraitAssetName: String {
+        switch generatedAvatarKey {
+        case "ice-boss": return "portrait_hana"
+        case "sunny-friend": return "portrait_seoyun"
+        case "puppy-junior": return "portrait_roi"
+        case "nocturne-vampire": return "portrait_kael"
+        default: return "portrait_\(generatedAvatarKey)"
+        }
+    }
+}
+
 struct CharacterStats: Hashable {
-    let likesText: String
+    let likeCount: Int
+    let chatCount: Int
+    let followerCount: Int
+    let creatorDisplayName: String
     let characterType: String
-    let creatorName: String
+    let genreLabel: String
     let storyCount: Int
     let communityPosts: Int
-    let updateNote: String
+    let updateLabel: String
+    let momentAvailabilityLabel: String
+
+    var likeCountText: String { CharacterStats.koreanCount(likeCount) }
+    var chatCountText: String { CharacterStats.koreanCount(chatCount) }
+    var followerCountText: String { CharacterStats.koreanCount(followerCount) }
+    var communityPostsText: String { CharacterStats.koreanCount(communityPosts) }
+
+    /// 한국어 단위로 큰 수를 축약한다. (예: 12800 -> "1.3만", 9600 -> "9.6천")
+    static func koreanCount(_ value: Int) -> String {
+        if value >= 10_000 {
+            let man = Double(value) / 10_000
+            return man >= 100 ? String(format: "%.0f만", man) : String(format: "%.1f만", man)
+        }
+        if value >= 1_000 {
+            return String(format: "%.1f천", Double(value) / 1_000)
+        }
+        return "\(value)"
+    }
 }
 
 struct WorldSetting: Identifiable, Hashable {

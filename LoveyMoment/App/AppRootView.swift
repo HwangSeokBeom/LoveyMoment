@@ -2,28 +2,12 @@ import SwiftUI
 
 struct AppRootView: View {
     @EnvironmentObject private var store: LoveyMomentStore
+    @Environment(\.scenePhase) private var scenePhase
     @State private var isShowingSplash = true
 
     var body: some View {
         ZStack {
-            NavigationStack(path: $store.path) {
-                CharacterWorldListView()
-                    .navigationDestination(for: AppRoute.self) { route in
-                        switch route {
-                        case .characterDetail:
-                            CharacterDetailView()
-                        case .chat:
-                            ChatView()
-                        case .momentAnalysis:
-                            MomentAnalysisView()
-                        case .momentPreview:
-                            MomentPreviewView()
-                        case .diagnostics:
-                            PoCDiagnosticsView()
-                        }
-                    }
-            }
-            .tint(.white)
+            MainTabView()
 
             if isShowingSplash {
                 AppSplashView {
@@ -42,6 +26,11 @@ struct AppRootView: View {
         .onChange(of: store.pendingNotificationRoute?.id) { _, _ in
             store.consumePendingNotificationRoute()
         }
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .background {
+                store.handleAppDidEnterBackground()
+            }
+        }
     }
 }
 
@@ -51,4 +40,10 @@ enum AppRoute: Hashable {
     case momentAnalysis
     case momentPreview
     case diagnostics
+    case datingSignalIntro
+    case datingSignalSelection
+    case datingSignalAnalysis
+    case datingSignalProfile
+    case datingSignalRecommendations
+    case datingSignalCandidateDetail(UUID)
 }

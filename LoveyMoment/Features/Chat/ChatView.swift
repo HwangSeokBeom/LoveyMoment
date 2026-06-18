@@ -3,6 +3,7 @@ import SwiftUI
 struct ChatView: View {
     @EnvironmentObject private var store: LoveyMomentStore
     @State private var draftText = ""
+    @FocusState private var isInputFocused: Bool
 
     var body: some View {
         ZStack {
@@ -33,10 +34,6 @@ struct ChatView: View {
 
                     LastSceneSummaryView(summary: store.lastSceneSummary(for: character))
 
-                    CardContainer {
-                        GeneratorDisclosureView()
-                    }
-
                     ScenarioStripView { scenario in
                         store.generateScenario(scenario)
                     }
@@ -52,20 +49,29 @@ struct ChatView: View {
                     if store.isGeneratingReply {
                         TypingIndicatorView(
                             character: character,
-                            statusText: store.generationStatusText ?? "Generating..."
+                            statusText: store.generationStatusText ?? "답장을 쓰는 중…"
                         )
                     }
 
                     if store.isAnalyzing {
-                        InlineNoticeView(text: "HealthKit 수면 신호와 대화를 분석하는 중...", icon: "waveform.path.ecg")
+                        InlineNoticeView(text: "수면 리듬과 대화를 살펴보는 중…", icon: "waveform.path.ecg")
                     }
                 }
                 .padding(18)
                 .padding(.bottom, 118)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
             }
+            .scrollDismissesKeyboard(.interactively)
+            .simultaneousGesture(
+                TapGesture().onEnded {
+                    isInputFocused = false
+                }
+            )
             .safeAreaInset(edge: .bottom) {
                 ChatInputBar(
                     draftText: $draftText,
+                    isInputFocused: $isInputFocused,
                     canSend: !store.isGeneratingReply,
                     canAnalyze: !store.isAnalyzing && !store.isGeneratingReply,
                     sendAction: sendDraft,
@@ -201,7 +207,7 @@ struct ChatBubbleView: View {
                 if isUser { Spacer(minLength: 52) }
 
                 if !isUser {
-                    CharacterPortraitView(character: character, size: 36)
+                    CharacterPortraitView(character: character, size: 36, style: .message)
                         .padding(.bottom, 18)
                 }
 
@@ -246,23 +252,9 @@ struct ChatBubbleView: View {
                 .font(.caption2)
                 .foregroundStyle(.white.opacity(0.42))
         } else {
-            HStack(spacing: 6) {
-                Text(character.name)
-                    .font(.caption2)
-                    .foregroundStyle(.white.opacity(0.42))
-
-                if let generationMode = message.generationMode {
-                    Text(generationMode.badgeText)
-                        .font(.caption2.weight(.bold))
-                        .foregroundStyle(generationMode == .nativeFoundationModel ? Color.black.opacity(0.78) : .white.opacity(0.86))
-                        .padding(.horizontal, 7)
-                        .padding(.vertical, 3)
-                        .background(
-                            Capsule()
-                                .fill(generationMode == .nativeFoundationModel ? PoCTheme.secondary : Color.white.opacity(0.12))
-                        )
-                }
-            }
+            Text(character.name)
+                .font(.caption2)
+                .foregroundStyle(.white.opacity(0.42))
         }
     }
 }
@@ -273,7 +265,7 @@ private struct TypingIndicatorView: View {
 
     var body: some View {
         HStack(alignment: .center, spacing: 10) {
-            CharacterPortraitView(character: character, size: 42)
+            CharacterPortraitView(character: character, size: 42, style: .mini)
 
             VStack(alignment: .leading, spacing: 6) {
                 Text("\(character.name)가 답장을 쓰는 중")
@@ -305,6 +297,7 @@ private struct TypingIndicatorView: View {
 
 private struct ChatInputBar: View {
     @Binding var draftText: String
+    var isInputFocused: FocusState<Bool>.Binding
     let canSend: Bool
     let canAnalyze: Bool
     let sendAction: () -> Void
@@ -323,6 +316,7 @@ private struct ChatInputBar: View {
                 .buttonStyle(.plain)
 
                 TextField("메시지 입력", text: $draftText, axis: .vertical)
+                    .focused(isInputFocused)
                     .lineLimit(1...4)
                     .textInputAutocapitalization(.never)
                     .padding(.horizontal, 12)

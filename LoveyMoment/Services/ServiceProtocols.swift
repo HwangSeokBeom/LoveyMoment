@@ -24,6 +24,23 @@ protocol MomentNotificationScheduling {
     func handlePreviewTap(moment: MomentMessage)
 }
 
+/// 캐릭터 메시지 알림(듀오링고식 리마인더) 예약/취소.
+/// 현재는 로컬 알림 구현이지만, route/userInfo 구조는 추후 APNs로 교체 가능하도록 유지한다.
+protocol CharacterNotificationScheduling {
+    func requestAuthorization() async -> Bool
+    func authorizationStatus() async -> UNAuthorizationStatus
+    /// plan 한 건을 예약한다. 실패 시 nil.
+    func schedule(plan: CharacterNotificationPlan) async -> String?
+    /// 10초/지정 초 뒤 테스트 알림. 동일 plan body/userInfo를 사용한다.
+    func scheduleTest(plan: CharacterNotificationPlan, after seconds: TimeInterval) async -> String?
+    /// 특정 캐릭터/타입의 pending 알림을 prefix로 모두 취소.
+    func cancel(characterId: UUID, type: CharacterNotificationType) async
+    /// 특정 캐릭터의 모든 캐릭터 알림 취소.
+    func cancelAll(characterId: UUID) async
+    /// 현재 pending 중인 캐릭터 알림 식별자 목록.
+    func pendingIdentifiers() async -> [String]
+}
+
 protocol ConversationGenerating {
     var generationMode: ConversationGenerationMode { get }
     var compileAvailability: Bool { get }

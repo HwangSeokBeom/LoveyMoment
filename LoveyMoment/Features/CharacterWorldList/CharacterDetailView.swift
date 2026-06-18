@@ -51,15 +51,14 @@ struct CharacterDetailView: View {
     private func hero(character: CharacterProfile, world: WorldSetting, stage: RelationshipStage) -> some View {
         VStack(alignment: .leading, spacing: 16) {
             ZStack(alignment: .bottomLeading) {
-                CharacterPortraitView(character: character, size: 294)
-                    .frame(maxWidth: .infinity)
+                CharacterHeroPortraitView(character: character, height: 380)
 
                 LinearGradient(
-                    colors: [.clear, PoCTheme.card.opacity(0.90)],
+                    colors: [.clear, .black.opacity(0.35), PoCTheme.card.opacity(0.95)],
                     startPoint: .top,
                     endPoint: .bottom
                 )
-                .frame(height: 136)
+                .frame(height: 200)
                 .frame(maxHeight: .infinity, alignment: .bottom)
 
                 VStack(alignment: .leading, spacing: 8) {
@@ -85,8 +84,8 @@ struct CharacterDetailView: View {
             .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
 
             HStack(spacing: 10) {
-                StatChip(title: "좋아요", value: character.stats.likesText)
-                StatChip(title: "타입", value: character.stats.characterType)
+                StatChip(title: "관심", value: character.stats.likeCountText)
+                StatChip(title: "대화", value: character.stats.chatCountText)
                 StatChip(title: "관계", value: stage.progressHint)
             }
 
@@ -141,7 +140,7 @@ struct CharacterDetailView: View {
                     AnalysisResultRowView(title: "프로필", value: character.personalitySummary, icon: "person.text.rectangle.fill")
                     AnalysisResultRowView(title: "관계 단계", value: "\(stage.label) → \(stage.progressHint)\n\(stage.description)", icon: "arrow.up.heart.fill")
                     AnalysisResultRowView(title: "세계관 규칙", value: world.relationshipRules, icon: "map.fill")
-                    AnalysisResultRowView(title: "스토리 수", value: "\(character.stats.storyCount)개 에피소드 · \(store.seedSnapshots(for: character).count)개 검증용 스냅샷", icon: "books.vertical.fill")
+                    AnalysisResultRowView(title: "에피소드", value: "\(character.stats.storyCount)개 에피소드 · 누적 대화 \(character.stats.chatCountText)", icon: "books.vertical.fill")
                 }
             }
         case .news:
@@ -151,8 +150,8 @@ struct CharacterDetailView: View {
                     Text(character.creatorNote)
                         .font(.body)
                         .foregroundStyle(.white.opacity(0.9))
-                    InlineNoticeView(text: character.stats.updateNote, icon: "megaphone.fill")
-                    Text("creator · \(character.stats.creatorName)")
+                    InlineNoticeView(text: character.stats.updateLabel, icon: "megaphone.fill")
+                    Text("제작 · \(character.stats.creatorDisplayName)")
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.white.opacity(0.52))
                 }

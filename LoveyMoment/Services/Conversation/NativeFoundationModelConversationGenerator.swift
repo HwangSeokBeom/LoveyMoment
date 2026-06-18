@@ -173,21 +173,25 @@ struct NativeFoundationModelConversationGenerator: ConversationGenerating {
             )
             throw error
         }
-        guard !text.isEmpty else {
-            print("[NativeLLM] generation=failed reason=emptyResponse")
+        print("[NativeLLM] rawOutput=\(text)")
+        let sanitized: String
+        do {
+            sanitized = try ConversationOutputSanitizer.sanitize(text)
+        } catch let error as ConversationOutputSanitizer.SanitizerError {
+            print("[NativeLLM] fallback=localDeterministicFallback reason=sanitizerRejected:\(error.reason.rawValue)")
             await NativeLLMDiagnosticsCenter.shared.markGenerationFailed(
                 canImportFoundationModels: true,
                 osAvailable: true,
                 runtimeAvailable: true,
                 contextCharacterCount: prompt.count,
-                reason: "emptyResponse"
+                reason: "sanitizerRejected:\(error.reason.rawValue)"
             )
-            throw NativeFoundationModelError.emptyResponse
+            throw NativeFoundationModelError.sanitizerRejected(error.reason.rawValue)
         }
-        print("[NativeLLM] generation=success outputChars=\(text.count) mode=nativeFoundationModel")
+        print("[NativeLLM] generation=success outputChars=\(sanitized.count) mode=nativeFoundationModel")
         print("[ConversationGenerator] finalMode=nativeFoundationModel noExternalAPI=true")
-        await NativeLLMDiagnosticsCenter.shared.markGenerationSucceeded(text: text)
-        return text
+        await NativeLLMDiagnosticsCenter.shared.markGenerationSucceeded(text: sanitized)
+        return sanitized
         #else
         let reason = "FoundationModels framework is not in this SDK"
         print("[NativeLLM] compile canImportFoundationModels=false")
@@ -293,11 +297,13 @@ actor NativeLLMDiagnosticsCenter {
 enum NativeFoundationModelError: Error, LocalizedError {
     case unavailable(String)
     case emptyResponse
+    case sanitizerRejected(String)
 
     var errorDescription: String? {
         switch self {
         case .unavailable(let reason): return reason
         case .emptyResponse: return "Native Foundation Model returned an empty response."
+        case .sanitizerRejected(let reason): return "Native output rejected by sanitizer: \(reason)"
         }
     }
 }
@@ -305,71 +311,69 @@ enum NativeFoundationModelError: Error, LocalizedError {
 private enum PromptFactory {
     static func replyPrompt(context: ConversationGenerationContext) -> String {
         """
-        LoveyMoment 채팅 답장 1개만 한국어로 작성해.
-        캐릭터: \(context.character.name), \(context.character.personalitySummary)
-        캐릭터 말투 키워드: \(context.character.defaultToneKeywords.joined(separator: ", "))
-        세계관: \(context.world.title) / \(context.world.summary)
-        관계: \(context.relationshipStage.label), \(context.relationshipStage.description)
-        최근 장면: \(context.lastSceneSummary)
-        시간대: \(timeBucket(context.now))
-        수면 신호: \(sleepSummary(context.sleepSignal))
-        최근 대화:
+        너는 \(context.character.name)라는 캐릭터다. 지금 좋아하는 상대에게 채팅으로 답장을 보낸다.
+        성격: \(context.character.personalitySummary)
+        말투: \(context.character.defaultToneKeywords.joined(separator: ", "))
+        관계: \(context.relationshipStage.label) (\(context.relationshipStage.description))
+        지금 분위기: \(timeBucket(context.now)), \(sleepSummary(context.sleepSignal))
+        직전 대화:
         \(recentMessages(context.messages))
 
-        조건:
-        - 1~3문장
-        - 채팅 말풍선에 맞는 짧고 자연스러운 길이
-        - 캐릭터 말투 유지
-        - 여성향 캐릭터 앱의 남자 캐릭터처럼 말하기
-        - 유저를 과하게 압박하지 않기
-        - 미성년 캐릭터처럼 보일 수 있는 설정이면 선정적이거나 노골적인 표현 금지
-        - 수면/건강 데이터 숫자, source, confidence, 내부 진단 상태를 직접 말하지 않기
-        - "나는 AI야", "모델로서", "API", "프롬프트" 같은 표현 금지
+        \(outputRules)
+        - 직전 상대 말의 내용과 감정에 직접 반응해서 자연스럽게 이어간다
+        - 대화가 끊기지 않게, 가벼운 질문 하나나 감정 한 줄로 마무리한다
+        - 1~2문장, 80자 이내, 캐릭터 말투 그대로 다정하게
+        - 유저를 과하게 압박하거나 설명하듯 말하지 않기
         """
     }
 
     static func scenarioPrompt(scenario: ConversationScenario, context: ConversationGenerationContext) -> String {
         """
-        \(scenario.title) 상황에 맞는 캐릭터 메시지 1개만 한국어로 작성해.
-        캐릭터: \(context.character.name), \(context.character.defaultToneKeywords.joined(separator: ", "))
-        세계관 키워드: \(context.world.sceneKeywords.joined(separator: ", "))
+        너는 \(context.character.name)라는 캐릭터다. 지금 좋아하는 상대에게 먼저 채팅을 보낸다.
+        상황: \(scenario.title)
+        말투: \(context.character.defaultToneKeywords.joined(separator: ", "))
+        장면 키워드: \(context.world.sceneKeywords.joined(separator: ", "))
         관계 단계: \(context.relationshipStage.progressHint)
-        수면 신호: \(sleepSummary(context.sleepSignal))
-        최근 대화:
+        지금 분위기: \(sleepSummary(context.sleepSignal))
+        직전 대화:
         \(recentMessages(context.messages))
 
-        조건:
-        - 1~2문장
-        - 설명문이 아니라 캐릭터가 직접 보내는 말풍선처럼 쓰기
+        \(outputRules)
+        - 1~2문장, 80자 이내
+        - 캐릭터가 직접 보내는 말풍선 한 줄
         - 과한 확정 고백 금지
-        - 수면/건강 데이터 숫자, source, confidence를 직접 말하지 않기
-        - 캐릭터가 실제 알림/분석 시스템을 알고 있는 것처럼 쓰지 않기
-        - "나는 AI야", "모델로서", "API", "프롬프트" 같은 표현 금지
         """
     }
 
     static func momentPrompt(context: MomentGenerationContext) -> String {
         """
-        \(context.type.displayName) 로컬 알림 본문 1개만 한국어로 작성해.
-        캐릭터: \(context.snapshot.character.name), \(context.snapshot.character.personalitySummary)
-        세계관: \(context.snapshot.worldSetting.title)
-        관계: \(context.snapshot.relationshipStage.label), \(context.snapshot.relationshipStage.allowedToneRange)
-        시간대: \(context.type == .bedtime ? "bedtime" : "morning")
-        Moment 설정: bedtime=\(context.momentSettings.isBedtimeMomentEnabled), morning=\(context.momentSettings.isMorningMomentEnabled), mode=\(context.momentSettings.notificationMode.rawValue)
-        수면 신호 요약: \(sleepSummary(context.sleepSignal))
-        분석 요약: \(context.analysisSummary)
-        최근 대화:
+        너는 \(context.snapshot.character.name)라는 캐릭터다. \(context.type == .bedtime ? "상대가 잠들기 전" : "상대가 깨어난 아침")에 먼저 짧은 알림 메시지를 보낸다.
+        성격: \(context.snapshot.character.personalitySummary)
+        관계: \(context.snapshot.relationshipStage.label) (\(context.snapshot.relationshipStage.allowedToneRange))
+        지금 분위기: \(sleepSummary(context.sleepSignal))
+        직전 대화:
         \(recentMessages(context.snapshot.recentMessages))
 
-        조건:
-        - \(context.type == .bedtime ? "잠들기 전 끊긴 장면을 다시 여는 느낌" : "아침에 다시 대화가 이어지는 느낌")
-        - 캐릭터가 먼저 말을 거는 느낌
-        - 1~2문장, 45자 이내 권장
-        - 알림 본문처럼 바로 읽히게 쓰기
-        - 수면/건강 데이터 숫자를 직접 말하지 않기
-        - 건강 앱, HealthKit, Native LLM, AI, API라는 단어 쓰지 않기
+        \(outputRules)
+        - \(context.type == .bedtime ? "잠들기 전 끊긴 장면을 다시 여는 느낌" : "아침에 대화가 다시 이어지는 느낌")
+        - 캐릭터가 먼저 말을 거는 한 줄
+        - 1~2문장, 45자 이내
+        - 알림에 떠도 자연스럽게
         """
     }
+
+    /// 모든 출력에 공통으로 강제하는 형식 규칙. 선택지/예시/목록/markdown을 절대 만들지 않게 한다.
+    private static let outputRules = """
+    형식 규칙(반드시 지킬 것):
+    - 캐릭터가 보내는 메시지 딱 한 개만 출력한다
+    - 여러 개를 만들거나, 후보를 나열하지 않는다
+    - 번호(1. 2.), 불릿(-, *), 제목, 설명, 따옴표를 쓰지 않는다
+    - 굵게/markdown 표기를 쓰지 않는다
+    - "예시", "답장", "메시지", "보기" 같은 단어로 시작하지 않는다
+    - 수면/건강 데이터의 숫자, source, confidence, 내부 분석 상태를 직접 말하지 않는다
+    - AI, 모델, 프롬프트, API라는 말을 쓰지 않는다
+    - 오직 캐릭터의 대사 문장만 출력한다
+    """
 
     private static func recentMessages(_ messages: [ChatMessage]) -> String {
         messages.suffix(10).map { message in
