@@ -47,6 +47,14 @@ final class LoveyMomentStore: ObservableObject {
     @Published var datingSignalAnalysisState: DatingSignalAnalysisState = .idle
     @Published var datingSignalErrorMessage: String?
     @Published var selectedDatingCandidate: DatingMatchCandidate?
+    @Published var homeRecommendationSeed = 0
+    @Published var lastRefreshedAt: Date?
+    @Published var readNotificationIDs: Set<String> = []
+    @Published var homeScrollToTopToken = 0
+    @Published var chatScrollToTopToken = 0
+    @Published var momentScrollToTopToken = 0
+    @Published var signalScrollToTopToken = 0
+    @Published var datingScrollToTopToken = 0
 
     let notificationComposer = CharacterNotificationComposer()
     private var hasRequestedNotificationPermissionInSession = false
@@ -128,7 +136,7 @@ final class LoveyMomentStore: ObservableObject {
     func refreshConversationGeneratorStatus() {
         foundationModelsCompileAvailable = environment.conversationGenerator.compileAvailability
         nativeLLMAvailability = environment.conversationGenerator.availabilityStatus()
-        currentConversationGenerationMode = nativeLLMAvailability.isAvailable ? .nativeFoundationModel : .localDeterministicFallback
+        currentConversationGenerationMode = nativeLLMAvailability.isAvailable ? .nativeFoundationModel : .highQualityAssistant
         print("[ConversationGenerator] compileFoundationModels=\(foundationModelsCompileAvailable) availability=\(nativeLLMAvailability.displayText) selectedMode=\(currentConversationGenerationMode.rawValue)")
         Task {
             await refreshNativeLLMDiagnostics()

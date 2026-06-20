@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// MY 탭. 프로필, 알림 설정, 건강 앱 연결, Apple Intelligence 상태,
+/// MY 탭. 프로필, 알림 설정, 건강 앱 연결, AI 답장 품질 안내,
 /// 앱 정보를 서비스 언어로 보여주고, 개발자 진단 화면으로 가는 입구를 둔다.
 struct MyView: View {
     @EnvironmentObject private var store: LoveyMomentStore
@@ -68,7 +68,7 @@ struct MyView: View {
                     TagPill(text: notificationLabel, color: notificationColor)
                 }
 
-                Text("잠들기 전·아침 Moment 알림을 관리하고, 테스트 알림으로 동작을 확인할 수 있어요.")
+                Text("잠들기 전·아침 Moment 알림을 관리하고, 지금 바로 미리 받아 확인할 수 있어요.")
                     .font(.subheadline)
                     .foregroundStyle(.white.opacity(0.72))
                     .fixedSize(horizontal: false, vertical: true)
@@ -109,7 +109,7 @@ struct MyView: View {
         CardContainer {
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
-                    SectionEyebrow(text: "Apple Intelligence")
+                    SectionEyebrow(text: "AI 답장 품질")
                     Spacer()
                     TagPill(text: intelligenceLabel, color: intelligenceColor)
                 }
@@ -171,18 +171,15 @@ struct MyView: View {
     }
 
     private var intelligenceLabel: String {
-        store.nativeLLMAvailability.isAvailable ? "사용 중" : "준비 안 됨"
+        "캐릭터 맥락 반영"
     }
 
     private var intelligenceColor: Color {
-        store.nativeLLMAvailability.isAvailable ? PoCTheme.secondary : PoCTheme.primary
+        PoCTheme.secondary
     }
 
     private var intelligenceDescription: String {
-        if store.nativeLLMAvailability.isAvailable {
-            return "이 기기에서 온디바이스 Apple Intelligence로 대화를 만들어요. 외부 서버로 대화 내용을 보내지 않아요."
-        }
-        return "지금은 이 기기의 기본 대화 엔진으로 자연스러운 답장을 만들어요. Apple Intelligence를 지원하는 기기에서는 더 풍부해져요."
+        "PoC에서는 캐릭터 설정과 최근 대화 맥락을 바탕으로 답장을 만들고, 실제 서비스에서는 서버 AI 모델과 장기 메모리로 확장할 수 있어요."
     }
 
     private var appVersion: String {

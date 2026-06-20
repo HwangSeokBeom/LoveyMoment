@@ -190,7 +190,7 @@ struct ChatBubbleView: View {
                     Label(message.text, systemImage: "bell.badge.fill")
                         .font(.caption2.weight(.bold))
                         .foregroundStyle(PoCTheme.primary)
-                    Text("알림 탭 또는 Moment 미리보기에서 이어진 system label")
+                    Text("알림에서 이어진 대화")
                         .font(.caption2)
                         .foregroundStyle(.white.opacity(0.42))
                 }
@@ -305,6 +305,23 @@ private struct ChatInputBar: View {
 
     var body: some View {
         VStack(spacing: 10) {
+            // 키보드가 내려가 있을 때만 보이는 컴팩트 Moment 액션. 입력을 가리지 않는다.
+            if !isInputFocused.wrappedValue {
+                Button(action: analyzeAction) {
+                    Label(canAnalyze ? "오늘 밤 이 장면으로 Moment 만들기" : "Moment 만드는 중", systemImage: "sparkles")
+                        .font(.footnote.weight(.bold))
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 38)
+                        .foregroundStyle(canAnalyze ? PoCTheme.primary : .white.opacity(0.4))
+                        .background(
+                            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                .fill(PoCTheme.primary.opacity(0.12))
+                        )
+                }
+                .buttonStyle(.plain)
+                .disabled(!canAnalyze)
+            }
+
             HStack(spacing: 10) {
                 Button(action: {}) {
                     Image(systemName: "plus")
@@ -327,6 +344,20 @@ private struct ChatInputBar: View {
                             .fill(Color.white.opacity(0.10))
                     )
 
+                // 키보드가 올라온 동안에는 Moment를 작은 아이콘 버튼으로만 노출.
+                if isInputFocused.wrappedValue {
+                    Button(action: analyzeAction) {
+                        Image(systemName: "sparkles")
+                            .font(.headline.weight(.bold))
+                            .foregroundStyle(canAnalyze ? Color.black.opacity(0.82) : .white.opacity(0.35))
+                            .frame(width: 38, height: 38)
+                            .background(Circle().fill(canAnalyze ? PoCTheme.primary.opacity(0.85) : Color.white.opacity(0.10)))
+                    }
+                    .disabled(!canAnalyze)
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Moment 만들기")
+                }
+
                 Button(action: sendAction) {
                     Image(systemName: "paperplane.fill")
                         .font(.headline.weight(.bold))
@@ -337,16 +368,10 @@ private struct ChatInputBar: View {
                 .disabled(!canSubmit)
                 .buttonStyle(.plain)
             }
-
-            PrimaryCTAButton(
-                title: canAnalyze ? "Lovey Moment 분석하기" : "분석 중",
-                systemImage: "sparkles",
-                isEnabled: canAnalyze,
-                action: analyzeAction
-            )
         }
         .padding(18)
         .background(.ultraThinMaterial.opacity(0.72))
+        .animation(.easeInOut(duration: 0.18), value: isInputFocused.wrappedValue)
     }
 
     private var canSubmit: Bool {

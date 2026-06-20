@@ -33,7 +33,7 @@ struct MomentPreviewView: View {
                         )
                     }
 
-                    SecondaryActionButton(title: "10초 뒤 테스트 알림 예약", systemImage: "timer") {
+                    SecondaryActionButton(title: "지금 바로 미리 받아보기", systemImage: "timer") {
                         store.scheduleTestNotification()
                     }
 
@@ -88,7 +88,7 @@ struct MomentPreviewView: View {
 
                     HStack(spacing: 8) {
                         TagPill(text: authorizationLabel, color: PoCTheme.primary)
-                        TagPill(text: "10초 테스트")
+                        TagPill(text: "미리 받기")
                     }
                 }
             }

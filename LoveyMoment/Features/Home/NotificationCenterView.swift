@@ -1,11 +1,11 @@
 import SwiftUI
-import UserNotifications
 
-/// 홈 알림 버튼이 여는 실제 동작 화면.
-/// 권한 상태 확인 / 테스트 알림 / Moment 알림 관리 / 설정 열기를 제공한다.
+/// 당근 스타일 활동 알림 센터. 캐릭터 메시지/Moment/Signal/설정 활동을 한곳에 모아
+/// 날짜 그룹·읽음 상태·필터로 보여주고, 각 항목을 탭하면 해당 화면으로 이동한다.
 struct NotificationCenterView: View {
     @EnvironmentObject private var store: LoveyMomentStore
     @Environment(\.dismiss) private var dismiss
+    @State private var filter: NotificationCenterFilter = .all
 
     var body: some View {
         NavigationStack {
@@ -13,21 +13,33 @@ struct NotificationCenterView: View {
                 PoCTheme.background.ignoresSafeArea()
 
                 ScrollView {
-                    VStack(alignment: .leading, spacing: 18) {
-                        statusCard
-                        actionsCard
-                        todaysMessagesCard
-                        enabledCharactersCard
-                        if let status = store.testNotificationStatusText {
-                            InlineNoticeView(text: status, icon: "timer.circle.fill")
+                    LazyVStack(alignment: .leading, spacing: 18, pinnedViews: []) {
+                        filterBar
+                        if filteredItems.isEmpty {
+                            emptyState
+                        } else {
+                            ForEach(NotificationDateGroup.allCases, id: \.self) { group in
+                                let items = groupedItems[group] ?? []
+                                if !items.isEmpty {
+                                    groupSection(group, items: items)
+                                }
+                            }
                         }
+                        settingsSection
                     }
                     .padding(18)
+                    .padding(.bottom, 24)
                 }
             }
-            .navigationTitle("알림 센터")
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle("알림")
+            .navigationBarTitleDisplayMode(.large)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("모두 읽음") { store.markAllNotificationsRead() }
+                        .font(.subheadline)
+                        .foregroundStyle(.white.opacity(0.8))
+                        .disabled(store.unreadNotificationCount == 0)
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("닫기") { dismiss() }
                         .foregroundStyle(.white)
@@ -40,19 +52,122 @@ struct NotificationCenterView: View {
         .tint(.white)
     }
 
-    private var statusCard: some View {
-        CardContainer {
-            VStack(alignment: .leading, spacing: 12) {
-                HStack {
-                    SectionEyebrow(text: "알림 권한")
-                    Spacer()
-                    TagPill(text: statusLabel, color: statusColor)
-                }
+    // MARK: - Filter
 
-                Text(statusDescription)
-                    .font(.subheadline)
-                    .foregroundStyle(.white.opacity(0.74))
+    private var filterBar: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(NotificationCenterFilter.allCases) { option in
+                    let isSelected = filter == option
+                    Button {
+                        filter = option
+                    } label: {
+                        HStack(spacing: 5) {
+                            Text(option.title)
+                            if option == .all, store.unreadNotificationCount > 0 {
+                                Text("\(store.unreadNotificationCount)")
+                                    .font(.caption2.weight(.heavy))
+                                    .padding(.horizontal, 6)
+                                    .padding(.vertical, 1)
+                                    .background(Capsule().fill(PoCTheme.primary))
+                                    .foregroundStyle(.black.opacity(0.82))
+                            }
+                        }
+                        .font(.subheadline.weight(.bold))
+                        .foregroundStyle(isSelected ? Color.black.opacity(0.82) : .white.opacity(0.78))
+                        .padding(.horizontal, 14)
+                        .padding(.vertical, 8)
+                        .background(Capsule().fill(isSelected ? PoCTheme.primary : Color.white.opacity(0.10)))
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
+    // MARK: - Groups
+
+    private func groupSection(_ group: NotificationDateGroup, items: [AppNotificationItem]) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text(group.title)
+                .font(.subheadline.weight(.heavy))
+                .foregroundStyle(.white.opacity(0.85))
+            VStack(spacing: 10) {
+                ForEach(items) { item in
+                    Button {
+                        store.openNotification(item)
+                        dismiss()
+                    } label: {
+                        itemRow(item)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+    }
+
+    private func itemRow(_ item: AppNotificationItem) -> some View {
+        HStack(alignment: .top, spacing: 12) {
+            ZStack(alignment: .topTrailing) {
+                Image(systemName: item.iconName)
+                    .font(.headline)
+                    .foregroundStyle(iconColor(item.category))
+                    .frame(width: 42, height: 42)
+                    .background(Circle().fill(iconColor(item.category).opacity(0.16)))
+                if !item.isRead {
+                    Circle()
+                        .fill(PoCTheme.primary)
+                        .frame(width: 9, height: 9)
+                        .offset(x: 2, y: -1)
+                }
+            }
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text(item.title)
+                    .font(.subheadline.weight(.bold))
+                    .foregroundStyle(.white)
                     .fixedSize(horizontal: false, vertical: true)
+                Text(item.body)
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.66))
+                    .lineLimit(2)
+                    .fixedSize(horizontal: false, vertical: true)
+                Text(item.relativeText)
+                    .font(.caption2)
+                    .foregroundStyle(.white.opacity(0.42))
+            }
+
+            Spacer(minLength: 0)
+            Image(systemName: "chevron.right")
+                .font(.caption.weight(.bold))
+                .foregroundStyle(.white.opacity(0.3))
+        }
+        .padding(14)
+        .background(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .fill(item.isRead ? PoCTheme.card : PoCTheme.cardStrong)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .stroke(PoCTheme.stroke, lineWidth: 1)
+                )
+        )
+    }
+
+    private func iconColor(_ category: AppNotificationItem.Category) -> Color {
+        switch category {
+        case .character: return PoCTheme.primary
+        case .moment: return PoCTheme.secondary
+        case .signal: return PoCTheme.primary
+        case .system: return .white.opacity(0.7)
+        }
+    }
+
+    // MARK: - Settings
+
+    private var settingsSection: some View {
+        CardContainer {
+            VStack(alignment: .leading, spacing: 14) {
+                SectionEyebrow(text: "알림 설정")
 
                 switch store.notificationAuthorizationStatus {
                 case .notDetermined:
@@ -66,83 +181,6 @@ struct NotificationCenterView: View {
                 default:
                     EmptyView()
                 }
-            }
-        }
-    }
-
-    private var actionsCard: some View {
-        CardContainer {
-            VStack(alignment: .leading, spacing: 14) {
-                SectionEyebrow(text: "알림 동작")
-
-                SecondaryActionButton(title: "30초 뒤 캐릭터 메시지 받아보기", systemImage: "timer") {
-                    store.scheduleTestCharacterNotification()
-                }
-
-                SecondaryActionButton(title: "Moment 알림 관리", systemImage: "moon.stars.fill") {
-                    store.selectedTab = .moment
-                    dismiss()
-                }
-
-                Text("캐릭터 메시지는 수면 리듬과 대화 흐름에 맞춰, 캐릭터가 직접 말을 거는 알림이에요.")
-                    .font(.caption)
-                    .foregroundStyle(.white.opacity(0.55))
-                    .fixedSize(horizontal: false, vertical: true)
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var todaysMessagesCard: some View {
-        CardContainer {
-            VStack(alignment: .leading, spacing: 12) {
-                SectionEyebrow(text: "오늘 받을 캐릭터 메시지")
-
-                if store.upcomingNotificationPlans.isEmpty {
-                    Text("아직 예정된 메시지가 없어요. 아래에서 캐릭터의 알림을 켜면 자기 전·아침 메시지가 준비돼요.")
-                        .font(.subheadline)
-                        .foregroundStyle(.white.opacity(0.6))
-                        .fixedSize(horizontal: false, vertical: true)
-                } else {
-                    ForEach(store.upcomingNotificationPlans) { plan in
-                        planRow(plan)
-                    }
-                }
-            }
-        }
-    }
-
-    private func planRow(_ plan: CharacterNotificationPlan) -> some View {
-        HStack(alignment: .top, spacing: 12) {
-            Image(systemName: plan.type.iconName)
-                .foregroundStyle(PoCTheme.primary)
-                .frame(width: 22)
-            VStack(alignment: .leading, spacing: 3) {
-                HStack(spacing: 6) {
-                    Text(plan.characterName)
-                        .font(.subheadline.weight(.bold))
-                        .foregroundStyle(.white)
-                    Text(plan.type.userFacingLabel)
-                        .font(.caption2.weight(.semibold))
-                        .foregroundStyle(PoCTheme.primary)
-                }
-                Text(plan.body)
-                    .font(.caption)
-                    .foregroundStyle(.white.opacity(0.7))
-                    .lineLimit(2)
-                Text("\(plan.scheduledDisplayText) · \(plan.source.userFacingLabel)")
-                    .font(.caption2)
-                    .foregroundStyle(.white.opacity(0.45))
-            }
-            Spacer()
-        }
-    }
-
-    @ViewBuilder
-    private var enabledCharactersCard: some View {
-        CardContainer {
-            VStack(alignment: .leading, spacing: 12) {
-                SectionEyebrow(text: "알림 받는 캐릭터")
 
                 ForEach(store.characters) { character in
                     HStack(spacing: 12) {
@@ -164,35 +202,41 @@ struct NotificationCenterView: View {
                         .tint(PoCTheme.primary)
                     }
                 }
+
+                SecondaryActionButton(title: "캐릭터 메시지 미리 받아보기", systemImage: "envelope.badge") {
+                    store.scheduleTestCharacterNotification()
+                }
+
+                if let status = store.testNotificationStatusText {
+                    Text(status)
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.55))
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
         }
     }
 
-    private var statusLabel: String {
-        switch store.notificationAuthorizationStatus {
-        case .authorized: return "허용됨"
-        case .denied: return "거부됨"
-        case .notDetermined: return "미설정"
-        case .provisional: return "임시 허용"
-        case .ephemeral: return "임시"
-        @unknown default: return "확인 필요"
+    private var emptyState: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "bell.slash.fill")
+                .font(.largeTitle)
+                .foregroundStyle(.white.opacity(0.4))
+            Text("아직 받은 알림이 없어요.")
+                .font(.subheadline)
+                .foregroundStyle(.white.opacity(0.65))
         }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 40)
     }
 
-    private var statusColor: Color {
-        store.notificationAuthorizationStatus == .authorized ? PoCTheme.secondary : PoCTheme.primary
+    // MARK: - Data
+
+    private var filteredItems: [AppNotificationItem] {
+        store.activityNotificationItems.filter { filter.matches($0) }
     }
 
-    private var statusDescription: String {
-        switch store.notificationAuthorizationStatus {
-        case .authorized, .provisional, .ephemeral:
-            return "알림이 켜져 있어요. 잠들기 전·아침 Moment를 받을 수 있어요."
-        case .notDetermined:
-            return "아직 알림 권한을 설정하지 않았어요. 켜면 Moment 알림을 받을 수 있어요."
-        case .denied:
-            return "알림이 꺼져 있어요. 설정에서 허용하면 Moment 알림을 받을 수 있어요."
-        @unknown default:
-            return "알림 상태를 확인할 수 없어요."
-        }
+    private var groupedItems: [NotificationDateGroup: [AppNotificationItem]] {
+        Dictionary(grouping: filteredItems) { $0.group() }
     }
 }

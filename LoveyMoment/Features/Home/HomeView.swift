@@ -3,34 +3,46 @@ import SwiftUI
 struct HomeView: View {
     @EnvironmentObject private var store: LoveyMomentStore
     @State private var selectedCategory = "전체"
-    @State private var searchText = ""
     @State private var isShowingNotificationCenter = false
+    @State private var isShowingSearch = false
 
     private let categories = ["전체", "학교 로맨스", "소꿉친구", "판타지", "집착", "다정", "차가운 남주"]
+    private let topAnchor = "home-top"
 
     var body: some View {
         ZStack {
             PoCTheme.background.ignoresSafeArea()
 
-            ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
-                    topBar
-                    searchField
-                    if let recommended = store.recommendedCharacter {
-                        recommendedBanner(recommended)
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 24) {
+                        Color.clear.frame(height: 0).id(topAnchor)
+                        topBar
+                        searchField
+                        if let recommended = store.homeRecommendedCharacter {
+                            recommendedBanner(recommended)
+                        }
+                        categoryChips
+                        sections
                     }
-                    categoryChips
-                    sections
+                    .padding(.horizontal, 18)
+                    .padding(.top, 8)
+                    .padding(.bottom, 120)
                 }
-                .padding(.horizontal, 18)
-                .padding(.top, 8)
-                .padding(.bottom, 28)
+                .refreshable { await store.refreshHome() }
+                .onChange(of: store.homeScrollToTopToken) { _, _ in
+                    withAnimation { proxy.scrollTo(topAnchor, anchor: .top) }
+                }
             }
         }
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .navigationBar)
         .sheet(isPresented: $isShowingNotificationCenter) {
             NotificationCenterView()
+                .environmentObject(store)
+        }
+        .fullScreenCover(isPresented: $isShowingSearch) {
+            HomeSearchView()
                 .environmentObject(store)
         }
         .onAppear {
@@ -44,6 +56,7 @@ struct HomeView: View {
                 Text("Lovey Moment")
                     .font(.title.weight(.heavy))
                     .foregroundStyle(.white)
+                    .onTapGesture { store.homeScrollToTopToken += 1 }
                 Text("오늘 밤, 끊긴 장면을 다시 여는 캐릭터 월드")
                     .font(.caption)
                     .foregroundStyle(.white.opacity(0.64))
@@ -61,11 +74,13 @@ struct HomeView: View {
                         .frame(width: 42, height: 42)
                         .background(Circle().fill(Color.white.opacity(0.10)))
 
-                    if store.notificationAuthorizationStatus != .authorized {
-                        Circle()
-                            .fill(PoCTheme.primary)
-                            .frame(width: 9, height: 9)
-                            .offset(x: -4, y: 4)
+                    if store.unreadNotificationCount > 0 {
+                        Text("\(min(store.unreadNotificationCount, 9))")
+                            .font(.caption2.weight(.heavy))
+                            .foregroundStyle(Color.black.opacity(0.85))
+                            .frame(width: 16, height: 16)
+                            .background(Circle().fill(PoCTheme.primary))
+                            .offset(x: -2, y: 2)
                     }
                 }
             }
@@ -75,28 +90,24 @@ struct HomeView: View {
     }
 
     private var searchField: some View {
-        HStack(spacing: 10) {
-            Image(systemName: "magnifyingglass")
-                .foregroundStyle(.white.opacity(0.55))
-            TextField("캐릭터, 세계관 검색", text: $searchText)
-                .foregroundStyle(.white)
-                .textInputAutocapitalization(.never)
-            if !searchText.isEmpty {
-                Button {
-                    searchText = ""
-                } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .foregroundStyle(.white.opacity(0.4))
-                }
-                .buttonStyle(.plain)
+        Button {
+            isShowingSearch = true
+        } label: {
+            HStack(spacing: 10) {
+                Image(systemName: "magnifyingglass")
+                    .foregroundStyle(.white.opacity(0.55))
+                Text("캐릭터, 세계관, 태그 검색")
+                    .foregroundStyle(.white.opacity(0.5))
+                Spacer()
             }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 12)
+            .background(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(Color.white.opacity(0.10))
+            )
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 12)
-        .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(Color.white.opacity(0.10))
-        )
+        .buttonStyle(.plain)
     }
 
     private func recommendedBanner(_ character: CharacterProfile) -> some View {
@@ -210,13 +221,9 @@ struct HomeView: View {
 
     private var filtered: [CharacterProfile] {
         store.characters.filter { character in
-            let matchesCategory = selectedCategory == "전체"
+            selectedCategory == "전체"
                 || character.categoryTags.contains { $0.localizedCaseInsensitiveContains(selectedCategory) }
-            let matchesSearch = searchText.isEmpty
-                || character.name.localizedCaseInsensitiveContains(searchText)
-                || character.subtitle.localizedCaseInsensitiveContains(searchText)
-                || character.stats.genreLabel.localizedCaseInsensitiveContains(searchText)
-            return matchesCategory && matchesSearch
+                || character.stats.genreLabel.localizedCaseInsensitiveContains(selectedCategory)
         }
     }
 

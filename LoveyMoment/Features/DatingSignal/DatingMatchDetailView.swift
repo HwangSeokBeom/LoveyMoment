@@ -25,7 +25,8 @@ struct DatingMatchDetailView: View {
                 reasonsCard(candidate)
                 safetyCard
             }
-            .padding(18)
+            .padding(20)
+            .padding(.bottom, 140)
         }
     }
 
@@ -63,7 +64,7 @@ struct DatingMatchDetailView: View {
                     .fixedSize(horizontal: false, vertical: true)
 
                 if !candidate.vibeTags.isEmpty {
-                    FlexibleTagRow(tags: candidate.vibeTags)
+                    PreferenceKeywordCloud(tags: candidate.vibeTags)
                 }
 
                 Label("실제 인물이 아닌 예시 프로필이에요.", systemImage: "info.circle.fill")

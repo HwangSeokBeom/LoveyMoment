@@ -1,12 +1,14 @@
 import Foundation
 
 enum ConversationGenerationMode: String, Hashable {
+    case highQualityAssistant
     case nativeFoundationModel
     case localDeterministicFallback
     case unavailable
 
     var displayName: String {
         switch self {
+        case .highQualityAssistant: return "High Quality Assistant"
         case .nativeFoundationModel: return "Native LLM / On-device"
         case .localDeterministicFallback: return "Local Generator fallback"
         case .unavailable: return "Unavailable"
@@ -15,6 +17,7 @@ enum ConversationGenerationMode: String, Hashable {
 
     var badgeText: String {
         switch self {
+        case .highQualityAssistant: return "High Quality"
         case .nativeFoundationModel: return "On-device · Native LLM"
         case .localDeterministicFallback: return "Local fallback"
         case .unavailable: return "Unavailable"

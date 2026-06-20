@@ -4,28 +4,43 @@ import SwiftUI
 struct DatingMatchRecommendationView: View {
     @EnvironmentObject private var store: LoveyMomentStore
 
+    @State private var tagSheet: TagSheetPayload?
+
+    private let topAnchor = "dating-top"
+
     var body: some View {
         ZStack {
             PoCTheme.background.ignoresSafeArea()
 
-            ScrollView {
-                VStack(alignment: .leading, spacing: 18) {
-                    header
-                    exampleNotice
-                    ForEach(store.datingMatchCandidates) { candidate in
-                        Button {
-                            store.openCandidateDetail(candidate)
-                        } label: {
-                            candidateCard(candidate)
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
+                        Color.clear.frame(height: 0).id(topAnchor)
+                        header
+                        exampleNotice
+                        ForEach(store.datingMatchCandidates) { candidate in
+                            Button {
+                                store.openCandidateDetail(candidate)
+                            } label: {
+                                candidateCard(candidate)
+                            }
+                            .buttonStyle(.plain)
                         }
-                        .buttonStyle(.plain)
                     }
+                    .padding(20)
+                    .padding(.bottom, 140)
                 }
-                .padding(18)
+                .refreshable { await store.refreshDatingRecommendations() }
+                .onChange(of: store.datingScrollToTopToken) { _, _ in
+                    withAnimation { proxy.scrollTo(topAnchor, anchor: .top) }
+                }
             }
         }
         .navigationTitle("추천 예시")
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(item: $tagSheet) { payload in
+            TagCloudSheet(payload: payload)
+        }
     }
 
     private var header: some View {
@@ -34,6 +49,7 @@ struct DatingMatchRecommendationView: View {
                 .font(.title2.weight(.heavy))
                 .foregroundStyle(.white)
                 .fixedSize(horizontal: false, vertical: true)
+                .onTapGesture { store.datingScrollToTopToken += 1 }
             if let headline = store.relationshipPreferenceProfile?.headline {
                 Text(headline)
                     .font(.subheadline)
@@ -88,9 +104,13 @@ struct DatingMatchRecommendationView: View {
                 }
 
                 if !candidate.vibeTags.isEmpty {
-                    FlexibleTagRow(tags: candidate.vibeTags)
+                    CompactTagRow(tags: candidate.vibeTags, maxVisible: 2) {
+                        tagSheet = TagSheetPayload(title: "전체 키워드", tags: candidate.vibeTags)
+                    }
                 }
             }
         }
+        // 어떤 자식도 카드 밖으로 그려지지 못하도록 카드 모양으로 잘라낸다(이중 안전장치).
+        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
 }

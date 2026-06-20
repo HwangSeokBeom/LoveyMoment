@@ -3,30 +3,39 @@ import SwiftUI
 struct ChatListView: View {
     @EnvironmentObject private var store: LoveyMomentStore
 
+    private let topAnchor = "chat-top"
+
     var body: some View {
         ZStack {
             PoCTheme.background.ignoresSafeArea()
 
-            ScrollView {
-                VStack(alignment: .leading, spacing: 14) {
-                    header
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 14) {
+                        Color.clear.frame(height: 0).id(topAnchor)
+                        header
 
-                    ForEach(store.characters) { character in
-                        Button {
-                            store.startChat(with: character)
-                        } label: {
-                            ChatListRow(
-                                character: character,
-                                lastMessage: store.messages(for: character).last?.text ?? character.openingScene,
-                                relationshipStage: store.relationshipStage(for: character)
-                            )
+                        ForEach(store.characters) { character in
+                            Button {
+                                store.startChat(with: character)
+                            } label: {
+                                ChatListRow(
+                                    character: character,
+                                    lastMessage: store.messages(for: character).last?.text ?? character.openingScene,
+                                    relationshipStage: store.relationshipStage(for: character)
+                                )
+                            }
+                            .buttonStyle(.plain)
                         }
-                        .buttonStyle(.plain)
                     }
+                    .padding(.horizontal, 18)
+                    .padding(.top, 12)
+                    .padding(.bottom, 120)
                 }
-                .padding(.horizontal, 18)
-                .padding(.top, 12)
-                .padding(.bottom, 28)
+                .refreshable { await store.refreshChatList() }
+                .onChange(of: store.chatScrollToTopToken) { _, _ in
+                    withAnimation { proxy.scrollTo(topAnchor, anchor: .top) }
+                }
             }
         }
         .navigationBarTitleDisplayMode(.inline)
@@ -38,6 +47,7 @@ struct ChatListView: View {
             Text("채팅")
                 .font(.largeTitle.weight(.heavy))
                 .foregroundStyle(.white)
+                .onTapGesture { store.chatScrollToTopToken += 1 }
             Text("이어가던 대화를 다시 열어보세요")
                 .font(.subheadline)
                 .foregroundStyle(.white.opacity(0.64))

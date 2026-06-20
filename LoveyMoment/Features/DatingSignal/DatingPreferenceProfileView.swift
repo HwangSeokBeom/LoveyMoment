@@ -119,7 +119,8 @@ struct DatingPreferenceProfileView: View {
         CardContainer {
             VStack(alignment: .leading, spacing: 12) {
                 SectionEyebrow(text: "취향 키워드")
-                FlexibleTagRow(tags: profile.keywordTags)
+                // 결과 리포트의 핵심 정보라 잘리면 안 됨 → 전부 wrap해서 보여준다.
+                PreferenceKeywordCloud(tags: profile.keywordTags)
             }
         }
     }

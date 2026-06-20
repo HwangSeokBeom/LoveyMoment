@@ -122,7 +122,7 @@ struct LocalConversationScenarioGenerator: ConversationGenerating {
         case "nocturne-vampire":
             return vampireTemplates[scenario] ?? vampireTemplates[.relationshipProgress]!
         default:
-            return ["지금 대답한 거, 기억해둘게. 다음 장면은 네가 먼저 정해."]
+            return ["지금 한 말, 흘려듣지 않았어. 그래서 네 기분은 어땠는데."]
         }
     }
 

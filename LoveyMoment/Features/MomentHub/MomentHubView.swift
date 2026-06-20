@@ -5,22 +5,32 @@ import SwiftUI
 struct MomentHubView: View {
     @EnvironmentObject private var store: LoveyMomentStore
 
+    private let topAnchor = "moment-top"
+
     var body: some View {
         ZStack {
             PoCTheme.background.ignoresSafeArea()
 
-            ScrollView {
-                VStack(alignment: .leading, spacing: 18) {
-                    header
-                    introCard
-                    todaysMessagesCard
-                    notificationStatusCard
-                    characterPicker
-                    if let status = store.testNotificationStatusText {
-                        InlineNoticeView(text: status, icon: "timer.circle.fill")
+            ScrollViewReader { proxy in
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 18) {
+                        Color.clear.frame(height: 0).id(topAnchor)
+                        header
+                        introCard
+                        todaysMessagesCard
+                        notificationStatusCard
+                        characterPicker
+                        if let status = store.testNotificationStatusText {
+                            InlineNoticeView(text: status, icon: "timer.circle.fill")
+                        }
                     }
+                    .padding(18)
+                    .padding(.bottom, 120)
                 }
-                .padding(18)
+                .refreshable { await store.refreshMoment() }
+                .onChange(of: store.momentScrollToTopToken) { _, _ in
+                    withAnimation { proxy.scrollTo(topAnchor, anchor: .top) }
+                }
             }
         }
         .navigationBarTitleDisplayMode(.inline)
@@ -35,6 +45,7 @@ struct MomentHubView: View {
             Text("Moment")
                 .font(.largeTitle.weight(.heavy))
                 .foregroundStyle(.white)
+                .onTapGesture { store.momentScrollToTopToken += 1 }
             Text("잠들기 전 끊긴 장면을, 캐릭터가 다시 열어요")
                 .font(.subheadline)
                 .foregroundStyle(.white.opacity(0.68))
