@@ -25,6 +25,48 @@ enum ConversationGenerationMode: String, Hashable {
     }
 }
 
+enum ConversationEngineMode: String, CaseIterable, Identifiable, Hashable {
+    case auto
+    case nativeFirst
+    case deterministicOnly
+    case diagnosticsOnly
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        switch self {
+        case .auto: return "Auto"
+        case .nativeFirst: return "Native first"
+        case .deterministicOnly: return "Deterministic only"
+        case .diagnosticsOnly: return "Diagnostics only"
+        }
+    }
+
+    var nativeChatEnabled: Bool {
+        switch self {
+        case .auto, .nativeFirst: return true
+        case .deterministicOnly, .diagnosticsOnly: return false
+        }
+    }
+}
+
+enum ConversationEngineSettings {
+    private static let defaultsKey = "LoveyMoment.ConversationEngineMode"
+
+    static var currentMode: ConversationEngineMode {
+        get {
+            if let raw = UserDefaults.standard.string(forKey: defaultsKey),
+               let mode = ConversationEngineMode(rawValue: raw) {
+                return mode
+            }
+            return .auto
+        }
+        set {
+            UserDefaults.standard.set(newValue.rawValue, forKey: defaultsKey)
+        }
+    }
+}
+
 enum ConversationGenerationAvailability: Hashable {
     case available
     case unavailable(reason: String)
@@ -42,6 +84,13 @@ enum ConversationGenerationAvailability: Hashable {
         if case .available = self { return true }
         return false
     }
+
+    var reasonText: String {
+        switch self {
+        case .available: return "available"
+        case .unavailable(let reason): return reason
+        }
+    }
 }
 
 struct ConversationGenerationContext: Hashable {
@@ -49,9 +98,56 @@ struct ConversationGenerationContext: Hashable {
     let world: WorldSetting
     let relationshipStage: RelationshipStage
     let messages: [ChatMessage]
+    var memory: ConversationMemory = .empty
     let sleepSignal: SleepSignal?
     let lastSceneSummary: String
     let now: Date
+}
+
+struct ConversationMemory: Hashable {
+    var userName: String?
+    var previousUserNames: [String]
+    var lastUserSelfIntroduction: String?
+    var lastNameUpdatedAt: Date?
+    var lastNameUpdateReason: String?
+    var knownFacts: [String]
+    var recentSceneSummary: String?
+    var relationshipHints: [String]
+    var updatedAt: Date?
+
+    init(
+        userName: String? = nil,
+        previousUserNames: [String] = [],
+        lastUserSelfIntroduction: String? = nil,
+        lastNameUpdatedAt: Date? = nil,
+        lastNameUpdateReason: String? = nil,
+        knownFacts: [String] = [],
+        recentSceneSummary: String? = nil,
+        relationshipHints: [String] = [],
+        updatedAt: Date? = nil
+    ) {
+        self.userName = userName
+        self.previousUserNames = previousUserNames
+        self.lastUserSelfIntroduction = lastUserSelfIntroduction
+        self.lastNameUpdatedAt = lastNameUpdatedAt
+        self.lastNameUpdateReason = lastNameUpdateReason
+        self.knownFacts = knownFacts
+        self.recentSceneSummary = recentSceneSummary
+        self.relationshipHints = relationshipHints
+        self.updatedAt = updatedAt
+    }
+
+    static let empty = ConversationMemory(
+        userName: nil,
+        previousUserNames: [],
+        lastUserSelfIntroduction: nil,
+        lastNameUpdatedAt: nil,
+        lastNameUpdateReason: nil,
+        knownFacts: [],
+        recentSceneSummary: nil,
+        relationshipHints: [],
+        updatedAt: nil
+    )
 }
 
 struct MomentGenerationContext: Hashable {

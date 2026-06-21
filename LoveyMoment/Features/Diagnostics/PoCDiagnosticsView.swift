@@ -65,6 +65,7 @@ struct PoCDiagnosticsView: View {
                 DiagnosticRow(title: "FoundationModels compile", value: diagnostics.canImportFoundationModels ? "true" : "\(store.foundationModelsCompileAvailable)")
                 DiagnosticRow(title: "OS available", value: diagnostics.osAvailable ? "true" : "false")
                 DiagnosticRow(title: "Runtime availability", value: store.nativeLLMAvailability.displayText)
+                DiagnosticRow(title: "Engine mode", value: store.conversationEngineMode.displayName)
                 DiagnosticRow(title: "Current mode", value: store.currentConversationGenerationMode.displayName)
                 DiagnosticRow(title: "Last generation mode", value: diagnostics.lastGenerationMode.displayName)
                 DiagnosticRow(title: "Last native success", value: diagnostics.lastGenerationSucceeded ? "true" : "false")
@@ -77,6 +78,84 @@ struct PoCDiagnosticsView: View {
                 DiagnosticRow(title: "Last fallback reason", value: diagnostics.lastFallbackReason ?? "none")
                 DiagnosticRow(title: "Last generated preview", value: diagnostics.lastGeneratedTextPreview ?? "none")
                 DiagnosticRow(title: "No external API", value: diagnostics.noExternalAPI ? "true" : "false")
+
+                Picker("Engine mode", selection: Binding(
+                    get: { store.conversationEngineMode },
+                    set: { store.setConversationEngineMode($0) }
+                )) {
+                    ForEach(ConversationEngineMode.allCases) { mode in
+                        Text(mode.displayName).tag(mode)
+                    }
+                }
+                .pickerStyle(.segmented)
+
+                VStack(alignment: .leading, spacing: 10) {
+                    Button {
+                        store.checkNativeLLMAvailability()
+                    } label: {
+                        Label("Check Native LLM Availability", systemImage: "cpu")
+                    }
+                    .buttonStyle(DiagnosticButtonStyle())
+
+                    Button {
+                        store.runNativeLLMSimpleKoreanTest()
+                    } label: {
+                        Label(
+                            store.isRunningNativeLLMDiagnosticsTest ? "Testing..." : "Test Native LLM Simple Korean Reply",
+                            systemImage: "text.bubble.fill"
+                        )
+                    }
+                    .buttonStyle(DiagnosticButtonStyle())
+                    .disabled(store.isRunningNativeLLMDiagnosticsTest)
+
+                    Button {
+                        store.runNativeLLMCharacterPromptTest()
+                    } label: {
+                        Label(
+                            store.isRunningNativeLLMDiagnosticsTest ? "Testing..." : "Test Native LLM Character Prompt",
+                            systemImage: "person.bubble.fill"
+                        )
+                    }
+                    .buttonStyle(DiagnosticButtonStyle())
+                    .disabled(store.isRunningNativeLLMDiagnosticsTest)
+
+                    Button {
+                        store.runChatEngineAutoModeScenario()
+                    } label: {
+                        Label(
+                            store.isRunningConversationDiagnostics ? "Running..." : "Test Chat Engine Auto Mode Scenario",
+                            systemImage: "arrow.triangle.branch"
+                        )
+                    }
+                    .buttonStyle(DiagnosticButtonStyle())
+                    .disabled(store.isRunningConversationDiagnostics)
+
+                    Button {
+                        store.runDeterministicFallbackScenario()
+                    } label: {
+                        Label(
+                            store.isRunningConversationDiagnostics ? "Running..." : "Test Deterministic Fallback Scenario",
+                            systemImage: "arrow.uturn.down"
+                        )
+                    }
+                    .buttonStyle(DiagnosticButtonStyle())
+                    .disabled(store.isRunningConversationDiagnostics)
+
+                    Button {
+                        store.runConversationDebugHarness()
+                    } label: {
+                        Label(
+                            store.isRunningConversationDiagnostics ? "Running..." : "Run 17-turn Chat Flow Scenarios",
+                            systemImage: "checklist.checked"
+                        )
+                    }
+                    .buttonStyle(DiagnosticButtonStyle())
+                    .disabled(store.isRunningConversationDiagnostics)
+                }
+
+                if let summary = store.conversationDebugSummary {
+                    DiagnosticRow(title: "Conversation diagnostics", value: summary)
+                }
             }
         }
     }
@@ -137,5 +216,19 @@ private struct DiagnosticRow: View {
                 .fixedSize(horizontal: false, vertical: true)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
+    }
+}
+
+private struct DiagnosticButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.caption.weight(.bold))
+            .foregroundStyle(.white)
+            .padding(.horizontal, 11)
+            .padding(.vertical, 9)
+            .background(
+                RoundedRectangle(cornerRadius: 8, style: .continuous)
+                    .fill(Color.white.opacity(configuration.isPressed ? 0.18 : 0.10))
+            )
     }
 }

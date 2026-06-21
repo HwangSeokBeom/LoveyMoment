@@ -25,9 +25,13 @@ final class LoveyMomentStore: ObservableObject {
     @Published var scheduledMoments: [MomentMessage] = []
     @Published var notificationAuthorizationStatus: UNAuthorizationStatus = .notDetermined
     @Published var testNotificationStatusText: String?
+    @Published var conversationEngineMode: ConversationEngineMode = ConversationEngineSettings.currentMode
     @Published var currentConversationGenerationMode: ConversationGenerationMode = .localDeterministicFallback
     @Published var nativeLLMAvailability: ConversationGenerationAvailability = .unavailable(reason: "notChecked")
     @Published var nativeLLMDiagnostics: NativeLLMDiagnostics = .empty
+    @Published var conversationDebugSummary: String?
+    @Published var isRunningConversationDiagnostics = false
+    @Published var isRunningNativeLLMDiagnosticsTest = false
     @Published var foundationModelsCompileAvailable = false
     @Published var isGeneratingReply = false
     @Published var generationStatusText: String?
@@ -64,6 +68,7 @@ final class LoveyMomentStore: ObservableObject {
     private let relationshipStagesByID: [UUID: RelationshipStage]
     private let lastSceneSummariesByCharacterID: [UUID: String]
     private let snapshotsByCharacterID: [UUID: [ConversationSnapshot]]
+    private var conversationMemory: ConversationMemory = .empty
 
     init(environment: AppEnvironment) {
         self.environment = environment
@@ -134,17 +139,198 @@ final class LoveyMomentStore: ObservableObject {
     }
 
     func refreshConversationGeneratorStatus() {
+        conversationEngineMode = ConversationEngineSettings.currentMode
         foundationModelsCompileAvailable = environment.conversationGenerator.compileAvailability
         nativeLLMAvailability = environment.conversationGenerator.availabilityStatus()
-        currentConversationGenerationMode = nativeLLMAvailability.isAvailable ? .nativeFoundationModel : .highQualityAssistant
+        currentConversationGenerationMode = environment.conversationGenerator.generationMode
         print("[ConversationGenerator] compileFoundationModels=\(foundationModelsCompileAvailable) availability=\(nativeLLMAvailability.displayText) selectedMode=\(currentConversationGenerationMode.rawValue)")
+        print("[LLMStatus] foundationModelsAvailable=\(nativeLLMAvailability.isAvailable) reason=\"\(nativeLLMAvailability.reasonText)\"")
+        print("[ConversationRoute] nativeEnabledForChat=\(conversationEngineMode.nativeChatEnabled && nativeLLMAvailability.isAvailable) reason=\"mode=\(conversationEngineMode.rawValue),availability=\(nativeLLMAvailability.reasonText)\"")
         Task {
             await refreshNativeLLMDiagnostics()
         }
     }
 
+    func setConversationEngineMode(_ mode: ConversationEngineMode) {
+        ConversationEngineSettings.currentMode = mode
+        conversationEngineMode = mode
+        print("[ConversationRoute] engineModeChanged=\(mode.rawValue)")
+        refreshConversationGeneratorStatus()
+    }
+
     func refreshNativeLLMDiagnostics() async {
         nativeLLMDiagnostics = await environment.conversationGenerator.nativeLLMDiagnosticsSnapshot()
+    }
+
+    func runConversationDebugHarness() {
+        isRunningConversationDiagnostics = true
+        conversationDebugSummary = "Running conversation scenarios..."
+        Task {
+            let results = await ConversationDebugHarness.runSeedCases()
+            let failures = results.filter { !$0.quality.hasPrefix("pass") }
+            conversationDebugSummary = "Conversation scenarios: \(results.count) cases, \(failures.count) failures"
+            isRunningConversationDiagnostics = false
+        }
+    }
+
+    func runNativeLLMDiagnosticsTest() {
+        runNativeLLMCharacterPromptTest()
+    }
+
+    func checkNativeLLMAvailability() {
+        refreshConversationGeneratorStatus()
+        conversationDebugSummary = "Native availability: \(nativeLLMAvailability.displayText)"
+    }
+
+    func runNativeLLMSimpleKoreanTest() {
+        guard let character = selectedCharacter ?? characters.first else { return }
+        isRunningNativeLLMDiagnosticsTest = true
+        conversationDebugSummary = "Running Native LLM simple Korean reply..."
+        Task {
+            await runNativeLLMDiagnostic(
+                character: character,
+                userText: "안녕. 한국어로 짧게 답해줘.",
+                memory: conversationMemory,
+                label: "Native simple Korean"
+            )
+            isRunningNativeLLMDiagnosticsTest = false
+        }
+    }
+
+    func runNativeLLMCharacterPromptTest() {
+        guard let character = selectedCharacter ?? characters.first else { return }
+        isRunningNativeLLMDiagnosticsTest = true
+        conversationDebugSummary = "Running Native LLM character prompt..."
+        Task {
+            let diagnosticMemory = conversationMemory.userName == nil
+                ? ConversationMemory(
+                    userName: "석범",
+                    lastUserSelfIntroduction: "나는 석범이야",
+                    knownFacts: ["userName=석범"],
+                    updatedAt: Date()
+                )
+                : conversationMemory
+            await runNativeLLMDiagnostic(
+                character: character,
+                userText: "내 이름이 뭐라고?",
+                memory: diagnosticMemory,
+                label: "Native character prompt"
+            )
+            isRunningNativeLLMDiagnosticsTest = false
+        }
+    }
+
+    func runChatEngineAutoModeScenario() {
+        guard let character = selectedCharacter ?? characters.first else { return }
+        let previousMode = ConversationEngineSettings.currentMode
+        setConversationEngineMode(.auto)
+        isRunningConversationDiagnostics = true
+        conversationDebugSummary = "Running chat engine auto mode scenario..."
+        Task {
+            let result = await runSingleDiagnosticTurn(character: character, userText: "나 햄버거 먹었어")
+            ConversationEngineSettings.currentMode = previousMode
+            conversationEngineMode = previousMode
+            refreshConversationGeneratorStatus()
+            conversationDebugSummary = "Auto mode: \(result)"
+            isRunningConversationDiagnostics = false
+        }
+    }
+
+    func runDeterministicFallbackScenario() {
+        guard let character = selectedCharacter ?? characters.first else { return }
+        let previousMode = ConversationEngineSettings.currentMode
+        setConversationEngineMode(.deterministicOnly)
+        isRunningConversationDiagnostics = true
+        conversationDebugSummary = "Running deterministic fallback scenario..."
+        Task {
+            let result = await runSingleDiagnosticTurn(character: character, userText: "사실 필규라고 불러")
+            ConversationEngineSettings.currentMode = previousMode
+            conversationEngineMode = previousMode
+            refreshConversationGeneratorStatus()
+            conversationDebugSummary = "Deterministic fallback: \(result)"
+            isRunningConversationDiagnostics = false
+        }
+    }
+
+    private func runNativeLLMDiagnostic(
+        character: CharacterProfile,
+        userText: String,
+        memory: ConversationMemory,
+        label: String
+    ) async {
+        let native = NativeFoundationModelConversationGenerator()
+        let diagnosticMessages = messages(for: character) + [
+            ChatMessage(sender: .user, text: userText, createdAt: Date())
+        ]
+        let context = ConversationGenerationContext(
+            character: character,
+            world: world(for: character),
+            relationshipStage: relationshipStage(for: character),
+            messages: diagnosticMessages,
+            memory: memory,
+            sleepSignal: currentSleepSignal,
+            lastSceneSummary: lastSceneSummary(for: character),
+            now: Date()
+        )
+        let availability = native.availabilityStatus()
+        print("[NativeLLM] availability=\(availability.displayText)")
+        guard availability.isAvailable else {
+            await NativeLLMDiagnosticsCenter.shared.markFallback(reason: availability.reasonText)
+            nativeLLMDiagnostics = await native.nativeLLMDiagnosticsSnapshot()
+            conversationDebugSummary = "\(label): unavailable (\(availability.reasonText))"
+            return
+        }
+
+        do {
+            let promptContext = ConversationPromptContextBuilder.build(context: context)
+            print("[NativeLLM] promptBuilt=true promptChars=\(promptContext.prompt.count) hasCharacterBible=\(promptContext.hasBible) hasWorld=\(promptContext.hasWorld) hasMemory=\(promptContext.hasMemory) hasRecentMessages=\(promptContext.hasRecentMessages)")
+            print("[NativeLLM] generationStarted")
+            let message = try await native.generateReply(context: context)
+            let verdict = ConversationGenerationQualityEvaluator().evaluate(
+                message.text,
+                against: context,
+                understanding: promptContext.understanding
+            )
+            print("[QualityGate] engine=NativeFoundationModel pass=\(verdict.isAccepted) reason=\"\(verdict.isAccepted ? "accepted" : rejectionReason(verdict))\"")
+            if !verdict.isAccepted {
+                await NativeLLMDiagnosticsCenter.shared.markFallback(reason: "quality:\(rejectionReason(verdict))")
+                print("[Fallback] used=true reason=\"quality:\(rejectionReason(verdict))\"")
+            }
+            nativeLLMDiagnostics = await native.nativeLLMDiagnosticsSnapshot()
+            conversationDebugSummary = "\(label): \(verdict.isAccepted ? "pass" : "quality fail") · \(message.text)"
+        } catch {
+            await NativeLLMDiagnosticsCenter.shared.markFallback(reason: error.localizedDescription)
+            nativeLLMDiagnostics = await native.nativeLLMDiagnosticsSnapshot()
+            print("[NativeLLM] generationFailed reason=\"\(error.localizedDescription)\"")
+            print("[Fallback] used=true reason=\"\(error.localizedDescription)\"")
+            conversationDebugSummary = "\(label) failed: \(error.localizedDescription)"
+        }
+    }
+
+    private func runSingleDiagnosticTurn(character: CharacterProfile, userText: String) async -> String {
+        let diagnosticMessages = messages(for: character) + [
+            ChatMessage(sender: .user, text: userText, createdAt: Date())
+        ]
+        let context = ConversationGenerationContext(
+            character: character,
+            world: world(for: character),
+            relationshipStage: relationshipStage(for: character),
+            messages: diagnosticMessages,
+            memory: conversationMemory,
+            sleepSignal: currentSleepSignal,
+            lastSceneSummary: lastSceneSummary(for: character),
+            now: Date()
+        )
+        do {
+            let promptContext = ConversationPromptContextBuilder.build(context: context)
+            let reply = try await environment.conversationGenerator.generateReply(context: context)
+            let verdict = ConversationGenerationQualityEvaluator().evaluate(reply.text, against: context, understanding: promptContext.understanding)
+            await refreshNativeLLMDiagnostics()
+            return "selectedEngine=\(reply.generationMode?.displayName ?? "unknown"), event=\(promptContext.understanding.eventType.logName), promptChars=\(promptContext.prompt.count), quality=\(verdict.isAccepted ? "pass" : "fail:\(rejectionReason(verdict))"), reply=\(reply.text)"
+        } catch {
+            await refreshNativeLLMDiagnostics()
+            return "failed: \(error.localizedDescription)"
+        }
     }
 
     func requestNotificationAuthorization() {
@@ -416,11 +602,50 @@ final class LoveyMomentStore: ObservableObject {
         let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty, let character = selectedCharacter else { return }
 
+        print("[ChatSend] character=\(characterLogKey(character.generatedAvatarKey)) user=\"\(trimmed)\"")
+        print("[ConversationCache] miss user=\"\(trimmed)\"")
         cancelFollowUpNotification(for: character)
 
         var messages = messagesByConversation[character.id] ?? []
-        messages.append(ChatMessage(sender: .user, text: trimmed, createdAt: Date()))
+        let userMessage = ChatMessage(sender: .user, text: trimmed, createdAt: Date())
+        messages.append(userMessage)
+        print("[ConversationStore] appended user=\(userMessage.id.uuidString) text=\"\(trimmed)\"")
         messagesByConversation[character.id] = messages
+
+        var memory = conversationMemory
+        let knownNameBefore = memory.userName
+        print("[ConversationMemory] before userName=\(knownNameBefore.map { "\"\($0)\"" } ?? "nil")")
+        let userMessages = messages.filter { $0.sender == .user }
+        let previousUserMessage = userMessages.count >= 2 ? userMessages[userMessages.count - 2].text : ""
+        let previousCharacterMessage = messages.last(where: { $0.sender == .character })?.text ?? ""
+        let understanding = UserMessageUnderstandingAnalyzer.analyze(
+            userLastMessage: trimmed,
+            previousUserMessage: previousUserMessage,
+            previousCharacterMessage: previousCharacterMessage,
+            avatarKey: character.generatedAvatarKey,
+            knownUserName: memory.userName
+        )
+        print("[StoryUnderstanding] event=\(understanding.eventType.logName) extractedName=\"\(understanding.extractedUserName ?? "nil")\" knownNameBefore=\"\(knownNameBefore ?? "nil")\"")
+        if let extractedName = understanding.extractedUserName,
+           understanding.eventType == .userNameIntroduction || understanding.eventType == .userNameCorrection {
+            let reason = understanding.eventType == .userNameCorrection ? "nameCorrection" : "nameIntroduction"
+            if let previous = memory.userName,
+               previous != extractedName,
+               !memory.previousUserNames.contains(previous) {
+                memory.previousUserNames.append(previous)
+            }
+            memory.userName = extractedName
+            memory.lastUserSelfIntroduction = trimmed
+            memory.lastNameUpdatedAt = Date()
+            memory.lastNameUpdateReason = reason
+            memory.knownFacts.removeAll { $0.hasPrefix("userName=") }
+            memory.knownFacts.append("userName=\(extractedName)")
+            memory.updatedAt = Date()
+            print("[ConversationMemory] update userName=\"\(extractedName)\" previous=\"\(knownNameBefore ?? "nil")\" reason=\(reason)")
+        }
+        conversationMemory = memory
+        print("[ConversationMemory] after userName=\(memory.userName.map { "\"\($0)\"" } ?? "nil")")
+
         isGeneratingReply = true
         refreshConversationGeneratorStatus()
         generationStatusText = "답장을 쓰는 중…"
@@ -431,6 +656,7 @@ final class LoveyMomentStore: ObservableObject {
                 world: world(for: character),
                 relationshipStage: relationshipStage(for: character),
                 messages: messages,
+                memory: conversationMemory,
                 sleepSignal: currentSleepSignal,
                 lastSceneSummary: lastSceneSummary(for: character),
                 now: Date()
@@ -450,12 +676,28 @@ final class LoveyMomentStore: ObservableObject {
 
             var updatedMessages = messagesByConversation[character.id] ?? messages
             updatedMessages.append(reply)
+            print("[ConversationStore] appended assistant=\(reply.id.uuidString) mode=\(reply.generationMode?.rawValue ?? "unknown") text=\"\(reply.text)\"")
             messagesByConversation[character.id] = updatedMessages
             currentConversationGenerationMode = reply.generationMode ?? .localDeterministicFallback
             await refreshNativeLLMDiagnostics()
             generationStatusText = nil
             isGeneratingReply = false
         }
+    }
+
+    private func characterLogKey(_ avatarKey: String) -> String {
+        switch avatarKey {
+        case "ice-boss": return "hana"
+        case "sunny-friend": return "seoyun"
+        case "puppy-junior": return "roi"
+        case "nocturne-vampire": return "kael"
+        default: return avatarKey
+        }
+    }
+
+    private func rejectionReason(_ verdict: ConversationQualityVerdict) -> String {
+        if case .rejected(let reason) = verdict { return reason }
+        return "unknown"
     }
 
     func generateScenario(_ scenario: ConversationScenario) {
@@ -471,6 +713,7 @@ final class LoveyMomentStore: ObservableObject {
                 world: world(for: character),
                 relationshipStage: relationshipStage(for: character),
                 messages: messages,
+                memory: conversationMemory,
                 sleepSignal: currentSleepSignal,
                 lastSceneSummary: lastSceneSummary(for: character),
                 now: Date()

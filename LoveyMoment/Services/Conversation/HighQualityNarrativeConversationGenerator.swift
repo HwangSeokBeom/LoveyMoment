@@ -22,6 +22,7 @@ struct HighQualityNarrativeConversationGenerator: ConversationGenerating {
     }
 
     func generateReply(context: ConversationGenerationContext) async throws -> ChatMessage {
+        _ = ConversationPromptContextBuilder.build(context: context)
         let flow = StoryConversationFlow(context: context)
         let text = planner.reply(for: flow, context: context)
         return ChatMessage(sender: .character, text: text, createdAt: context.now, generationMode: generationMode)
@@ -231,10 +232,11 @@ enum DialogueActDetector {
             || t.contains("생각났") || t.contains("생각나") { return .affection }
         if t.contains("삐") || t.contains("질투") || t.contains("서운") || t.contains("화났") || t.contains("토라") { return .sulk }
         if t.contains("피곤") || t.contains("지쳐") || t.contains("지친") || t.contains("힘들") || t.contains("기진") { return .fatigue }
-        if t.contains("슬프") || t.contains("우울") || t.contains("속상") || t.contains("울고") || t.contains("외로") { return .sad }
+        if t.contains("슬프") || t.contains("우울") || t.contains("속상") || t.contains("울고") || t.contains("외로") || t.contains("무서") { return .sad }
         if t.contains("바빠") || t.contains("바쁘") || t.contains("회의") || t.contains("야근") || t.contains("공부") { return .busy }
         if t.contains("잘게") || t.contains("자야") || t.contains("굿나잇") || t.contains("잘자")
-            || t.contains("잘래") || t.contains("졸려") { return .sleep }
+            || t.contains("잘래") || t.contains("졸려") || t.contains("잠이 안") || t.contains("잠 안")
+            || t.contains("잠 못") || t.contains("잠들지") { return .sleep }
         if t.contains("ㅋㅋ") || t.contains("ㅎㅎ") || t.contains("메롱") || t.contains("장난") || t.contains("까불") { return .teasing }
         if t.contains("안녕") || t.contains("하이") || t.contains("뭐해") || t.contains("뭐 해") || t.contains("왔어") { return .greeting }
 
@@ -256,18 +258,39 @@ enum DialogueActDetector {
 /// 유저가 마지막에 말한 "사건"의 종류. DialogueAct(말의 행위)보다 한 단계 위에서
 /// "무슨 일이 일어났는가"를 잡아, 캐릭터가 사건 자체에 반응하도록 만든다.
 enum EventType {
-    case greeting
-    case food
-    case dailyLife
-    case bullyingOrHarassment
-    case physicalHarm
-    case sadness
-    case fatigue
-    case affection
-    case confusion
+    case userNameIntroduction
+    case userNameCorrection
+    case askKnownUserName
+    case askKnownUserIdentity
+    // 직전 답변이 질문 대상을 잘못 이해했을 때 유저가 바로잡는 발화("니 이름 말고 내 이름").
+    case clarificationCorrection
+    case characterIdentityQuestion
+    case userIdentityQuestion
+    case characterCall
     case nameQuestion
     case memoryQuestion
     case relationshipQuestion
+    case confusion
+    case greeting
+    // 유저가 자기 식사/활동을 알리는 경우(subject=user).
+    case userFoodDisclosure
+    case userActivityDisclosure
+    // 유저가 캐릭터 자신에게 묻는 질문(subject=character, target=currentCharacter).
+    case characterFoodQuestion
+    case characterPreferenceQuestion
+    case characterStateQuestion
+    case characterActivityQuestion
+    case invitationOrPlanProposal
+    // 유저가 대화를 끝내고 자러 간다고 알리는 경우(subject=user, topic=sleep).
+    case farewellOrSleep
+    case dailyLife
+    case bullyingOrHarassment
+    case physicalHarm
+    case fear
+    case sadness
+    case fatigue
+    case affection
+    case emotionalDisclosure
     case selfDisclosure
     case casual
     case unknown
@@ -275,6 +298,59 @@ enum EventType {
     /// 안전(보호) 우선 사건 — 장난 톤을 줄이고 보호·안전 확인을 앞세운다.
     var isSafetyEvent: Bool {
         self == .bullyingOrHarassment || self == .physicalHarm
+    }
+
+    var requiresChatPrimaryRoute: Bool {
+        switch self {
+        case .userNameIntroduction, .userNameCorrection, .askKnownUserName, .askKnownUserIdentity,
+             .clarificationCorrection,
+             .characterIdentityQuestion, .userIdentityQuestion, .characterCall, .nameQuestion,
+             .memoryQuestion, .relationshipQuestion, .confusion,
+             .userFoodDisclosure, .userActivityDisclosure,
+             .characterFoodQuestion, .characterPreferenceQuestion, .characterStateQuestion, .characterActivityQuestion,
+             .invitationOrPlanProposal, .farewellOrSleep,
+             .bullyingOrHarassment, .physicalHarm:
+            return true
+        default:
+            return false
+        }
+    }
+
+    var logName: String {
+        switch self {
+        case .userNameIntroduction: return "userNameIntroduction"
+        case .userNameCorrection: return "userNameCorrection"
+        case .askKnownUserName: return "askKnownUserName"
+        case .askKnownUserIdentity: return "askKnownUserIdentity"
+        case .clarificationCorrection: return "clarificationCorrection"
+        case .characterIdentityQuestion: return "characterIdentityQuestion"
+        case .userIdentityQuestion: return "userIdentityQuestion"
+        case .characterCall: return "characterCall"
+        case .nameQuestion: return "nameQuestion"
+        case .memoryQuestion: return "memoryQuestion"
+        case .relationshipQuestion: return "relationshipQuestion"
+        case .confusion: return "confusion"
+        case .greeting: return "greeting"
+        case .userFoodDisclosure: return "userFoodDisclosure"
+        case .userActivityDisclosure: return "userActivityDisclosure"
+        case .characterFoodQuestion: return "characterFoodQuestion"
+        case .characterPreferenceQuestion: return "characterPreferenceQuestion"
+        case .characterStateQuestion: return "characterStateQuestion"
+        case .characterActivityQuestion: return "characterActivityQuestion"
+        case .invitationOrPlanProposal: return "invitationOrPlanProposal"
+        case .farewellOrSleep: return "farewellOrSleep"
+        case .dailyLife: return "dailyLife"
+        case .bullyingOrHarassment: return "bullyingOrHarassment"
+        case .physicalHarm: return "physicalHarm"
+        case .fear: return "fear"
+        case .sadness: return "sadness"
+        case .fatigue: return "fatigue"
+        case .affection: return "affection"
+        case .emotionalDisclosure: return "emotionalDisclosure"
+        case .selfDisclosure: return "selfDisclosure"
+        case .casual: return "casual"
+        case .unknown: return "unknown"
+        }
     }
 }
 
@@ -299,14 +375,93 @@ enum EventSeverity {
     case safety
 }
 
-/// 유저 마지막 메시지에 대한 종합 이해. 사건·감정·기대 반응·반복 여부까지 담는다.
+/// 현재 턴이 "누구에 대한" 발화인지. food/activity/preference/state를 user/character로 가르는 핵심 축.
+enum MessageSubject {
+    case user
+    case character
+    case both
+    case relationship
+    case unknown
+
+    var logName: String {
+        switch self {
+        case .user: return "user"
+        case .character: return "character"
+        case .both: return "both"
+        case .relationship: return "relationship"
+        case .unknown: return "unknown"
+        }
+    }
+}
+
+/// 발화가 "누구를 향하는지"(답변 대상).
+enum MessageTarget {
+    case currentCharacter
+    case user
+    case relationship
+    case world
+    case unknown
+
+    var logName: String {
+        switch self {
+        case .currentCharacter: return "currentCharacter"
+        case .user: return "user"
+        case .relationship: return "relationship"
+        case .world: return "world"
+        case .unknown: return "unknown"
+        }
+    }
+}
+
+/// 발화의 주제.
+enum MessageTopic {
+    case food
+    case activity
+    case preference
+    case state
+    case identity
+    case name
+    case emotion
+    case safety
+    case plan
+    case sleep
+    case casual
+    case unknown
+
+    var logName: String {
+        switch self {
+        case .food: return "food"
+        case .activity: return "activity"
+        case .preference: return "preference"
+        case .state: return "state"
+        case .identity: return "identity"
+        case .name: return "name"
+        case .emotion: return "emotion"
+        case .safety: return "safety"
+        case .plan: return "plan"
+        case .sleep: return "sleep"
+        case .casual: return "casual"
+        case .unknown: return "unknown"
+        }
+    }
+}
+
+/// 유저 마지막 메시지에 대한 종합 이해. 사건·감정·기대 반응·반복 여부에 더해
+/// "현재 턴의 주체(subject)/대상(target)/주제(topic)"까지 담아, 직전 맥락이 현재 질문을 덮어쓰지 못하게 한다.
 struct UserMessageUnderstanding {
     let rawText: String
+    /// 띄어쓰기/문장부호를 제거한 정규화 텍스트. "내이름" vs "내 이름"을 같은 의도로 본다.
+    let normalizedText: String
     let dialogueAct: DialogueAct
     let eventType: EventType
+    let subject: MessageSubject
+    let target: MessageTarget
+    let topic: MessageTopic
     let emotion: String?
     let keyEvent: String?
     let keyObject: String?
+    let extractedUserName: String?
+    let knownUserName: String?
     let expectedResponseType: ExpectedResponseType
     let isRepeatedClarification: Bool
     let requiresDirectAnswer: Bool
@@ -323,17 +478,71 @@ enum UserMessageUnderstandingAnalyzer {
         "괴롭", "누가 날", "누가 나를", "상처", "싫은 말", "무시했", "무시당",
         "욕했", "욕먹", "힘들게 했", "따돌", "험담", "놀림당", "괴롭힘"
     ]
-    private static let foodTokens = ["먹었", "먹음", "햄버거", "밥 먹", "치킨", "피자", "라면", "떡볶이", "먹는 중", "먹고 있"]
+    private static let foodTokens = ["먹었", "먹음", "먹어", "뭐 먹", "뭘 먹", "맛", "햄버거", "밥 먹", "치킨", "피자", "라면", "떡볶이", "먹는 중", "먹고 있"]
     private static let greetingTokens = ["안녕", "하이", "왔어", "할로", "헬로"]
     private static let dailyLifeTokens = ["뭐해", "뭐 해", "너는 뭐", "넌 뭐", "뭐하고", "뭐 하고", "지금 뭐"]
+    /// 제안/초대/계획. "우리 내일 놀이동산가자", "같이 가자", "옆에 있어줘" 등.
+    private static let invitationTokens = [
+        "놀이동산", "놀러 가", "놀러가", "같이 가", "같이가", "만나자", "데이트",
+        "같이 있을래", "같이있을래", "옆에 있어", "옆에있어", "같이 밥 먹", "같이 밥먹",
+        "보러 가", "보러가", "여행 가", "여행가", "같이 보자", "같이 하자", "함께 가",
+        "가자", "하러 가", "구경 가", "산책 가", "영화 보러"
+    ]
+    private static let characterIdentityTokens = [
+        "너는 누구야", "넌 누구야", "너 누구", "너 정체가 뭐야", "너 뭐야", "넌 뭐야", "정체가 뭐",
+        // 캐릭터의 "이름"을 묻는 패턴(유저 이름 질문 "내 이름"과 구분됨).
+        "너 이름", "너의 이름", "니 이름", "니이름", "네 이름은", "네 이름이", "네 이름 뭐", "이름이 뭐야", "이름 뭐야", "이름이 뭐니"
+    ]
+    /// 유저가 대화를 끝내고 자러 간다고 알리는 인사/취침 신호.
+    private static let farewellTokens = [
+        "이만 잘", "이만 갈", "이만 가볼", "자러 갈", "자러 간", "자야겠", "잘래", "잘게",
+        "굿나잇", "굿 나잇", "잘 자", "잘자", "잘 자라", "꿈나라", "들어가서 잘", "이제 잘", "이제 자", "그만 자"
+    ]
+    private static let askKnownUserIdentityTokens = [
+        "내가 누구라고", "나 누구라고", "내가 누구였지", "나 누구였지",
+        "나 누구라고 했지", "방금 나 누구라고", "내가 누구야", "나 누구야",
+        "내가 누구게", "나 누구게"
+    ]
+    private static let userIdentityTokens = [
+        "내가 누군지 알아", "나 알아?", "나 알아"
+    ]
+    private static let askKnownUserNameTokens = [
+        "내 이름이 뭐야", "내 이름 뭐야", "내 이름이 뭐", "내 이름 뭐",
+        "내 이름이 뭐라고", "내 이름 뭐라고", "내 이름이 뭐였지", "내 이름 뭐였지",
+        "내 이름 다시 말해", "내 이름 기억나", "내 이름 기억해", "내 이름 알아",
+        "나 이름 뭐였지", "나 이름 뭐라고", "이름 기억나"
+    ]
+    private static let nameQuestionTokens = [
+        "내 이름 알아", "내 이름 기억해", "내 이름 뭐야", "이름 알아", "이름 기억해", "이름 뭐야"
+    ]
+    private static let memoryQuestionTokens = ["기억나", "기억해", "기억하", "기억 안", "기억 못"]
+    private static let relationshipQuestionTokens = ["무슨 사이", "우리 사이", "우리 무슨", "나 어떻게 생각", "날 어떻게 생각"]
+    private static let confusionTokens = ["무슨 소리", "뭔 소리", "뭔데", "무슨 말", "뭔 말", "모르겠", "헷갈", "이해 안", "이해가 안"]
+
+    /// 띄어쓰기·문장부호를 제거하고 소문자화한 정규화 문자열.
+    /// "내이름이 뭐야"와 "내 이름이 뭐야"를 동일한 의도로 인식하기 위함.
+    static func normalize(_ text: String) -> String {
+        let lowered = text.lowercased()
+        let kept = lowered.unicodeScalars.filter { scalar in
+            !CharacterSet.whitespacesAndNewlines.contains(scalar)
+                && !CharacterSet.punctuationCharacters.contains(scalar)
+                && !CharacterSet.symbols.contains(scalar)
+        }
+        return String(String.UnicodeScalarView(kept))
+    }
 
     static func analyze(
         userLastMessage: String,
         previousUserMessage: String,
         previousCharacterMessage: String,
-        avatarKey: String
+        avatarKey: String,
+        knownUserName: String? = nil
     ) -> UserMessageUnderstanding {
         let t = userLastMessage.trimmingCharacters(in: .whitespacesAndNewlines)
+        let n = normalize(t)
+        let correctionName = extractNameCorrectionName(from: t, knownUserName: knownUserName)
+        let introductionName = extractSelfIntroductionName(from: t, knownUserName: knownUserName)
+        let extractedName = correctionName ?? introductionName
         let dialogueAct = DialogueActDetector.detect(
             userLastMessage: userLastMessage,
             previousCharacterMessage: previousCharacterMessage,
@@ -343,6 +552,32 @@ enum UserMessageUnderstandingAnalyzer {
         let isPhysicalHarm = physicalHarmTokens.contains { t.contains($0) }
         let isBullying = bullyingTokens.contains { t.contains($0) }
         let prevWasSafety = (physicalHarmTokens + bullyingTokens).contains { previousUserMessage.contains($0) }
+        let characterName = displayName(for: avatarKey)
+        let isCharacterCall = t == "\(characterName)아" || t == "\(characterName)야"
+
+        // 현재 턴의 주체/주제 신호. "너/넌/너는/너도/네가/캐릭터이름"이 주어로 들어오면
+        // 직전 맥락과 무관하게 "캐릭터 자신에게 묻는 질문"으로 본다(subject=character).
+        let mentionsCharacterSubject = ["너는", "넌", "너도", "네가", "너 "].contains { t.contains($0) }
+            || (!characterName.isEmpty && ["\(characterName)은", "\(characterName)는", "\(characterName)도", "\(characterName)이"].contains { t.contains($0) })
+        let isFoodTopic = foodTokens.contains { t.contains($0) }
+        let isPreferenceTopic = ["좋아해", "좋아하", "좋아?", "싫어해", "싫어하", "취향", "즐겨"].contains { t.contains($0) }
+        let isStateTopic = ["배고프", "배 안 고", "배고파", "괜찮아", "피곤", "졸려", "졸리", "지쳤", "지쳐"].contains { t.contains($0) }
+        let isActivityTopic = dailyLifeTokens.contains { t.contains($0) }
+            || ["뭐 했", "뭐했", "하고 있", "하는 중", "뭐 하고", "뭐하고",
+                "뭐할", "뭐 할", "뭐 할 거", "뭐할 거", "뭐 할거", "뭐할거", "할 거야", "할거야", "뭐 하니"].contains { t.contains($0) }
+
+        // 정규화 텍스트 기반 이름-주체 신호. "내이름"(붙여 쓴 경우 포함)은 유저 이름 질문,
+        // "너이름/니이름"은 캐릭터 이름 질문으로 구분한다.
+        let mentionsMyName = ["내이름", "나이름", "제이름", "내이릅"].contains { n.contains($0) }
+        let mentionsYourName = ["너이름", "니이름", "네이름", "너의이름", "당신이름"].contains { n.contains($0) }
+        let hasContrastMarker = n.contains("말고") || n.contains("아니라") || n.contains("그게아니")
+        // "니 이름 말고 내 이름"처럼 직전 답변이 질문 대상을 잘못 짚었을 때 유저가 바로잡는 발화.
+        let isClarificationCorrection =
+            (mentionsMyName && (mentionsYourName || hasContrastMarker))
+            || ["너말고나", "니말고나", "당신말고나", "내이름물어", "내이름말고", "니이름말고", "너이름말고", "네이름말고", "말고내이름"].contains { n.contains($0) }
+        // "내 이름이 뭐야" 류 — 정규화로 붙여 쓴 변형까지 잡는다.
+        let asksMyName = mentionsMyName
+            && (n.contains("뭐") || n.contains("기억") || n.contains("알아") || n.contains("말해") || n.contains("아니") || n.contains("불러"))
 
         let eventType: EventType
         let response: ExpectedResponseType
@@ -351,32 +586,77 @@ enum UserMessageUnderstandingAnalyzer {
         var requiresDirectAnswer = false
         var keyObject: String? = nil
 
-        // 우선순위: physicalHarm > bullying > 이름/기억/관계 질문 > confusion > food > greeting > fatigue > affection > dailyLife > casual.
+        // 우선순위: physicalHarm > bullying > name correction > name introduction > known-name/identity recall > character identity > character call > 이름/기억/관계 질문 > confusion > food > greeting > fatigue > affection > dailyLife > casual.
         if isPhysicalHarm {
             eventType = .physicalHarm; response = .protect; emotion = "hurt"; severity = .safety
         } else if isBullying {
             eventType = .bullyingOrHarassment; response = .protect; emotion = "hurt"; severity = .safety
-        } else if t.contains("이름") {
+        } else if correctionName != nil {
+            eventType = .userNameCorrection; response = .answerQuestion; emotion = nil; severity = .none; requiresDirectAnswer = true
+        } else if introductionName != nil {
+            eventType = .userNameIntroduction; response = .answerQuestion; emotion = nil; severity = .none; requiresDirectAnswer = true
+        } else if isClarificationCorrection {
+            // "니 이름 말고 내 이름" → 직전 답을 바로잡고, 원래 의도(유저 이름 묻기)로 다시 답해야 한다.
+            eventType = .clarificationCorrection; response = .clarifyPrevious; emotion = nil; severity = .none; requiresDirectAnswer = true
+        } else if asksMyName || askKnownUserNameTokens.contains(where: { n.contains(normalize($0)) }) {
+            eventType = .askKnownUserName; response = .answerQuestion; emotion = nil; severity = .none; requiresDirectAnswer = true
+        } else if askKnownUserIdentityTokens.contains(where: { n.contains(normalize($0)) }) {
+            eventType = .askKnownUserIdentity; response = .answerQuestion; emotion = nil; severity = .none; requiresDirectAnswer = true
+        } else if !mentionsMyName && characterIdentityTokens.contains(where: { n.contains(normalize($0)) }) {
+            eventType = .characterIdentityQuestion; response = .answerQuestion; emotion = nil; severity = .none; requiresDirectAnswer = true
+        } else if userIdentityTokens.contains(where: { t.contains($0) }) {
+            eventType = .userIdentityQuestion; response = .answerQuestion; emotion = nil; severity = .none; requiresDirectAnswer = true
+        } else if isCharacterCall {
+            eventType = .characterCall; response = .greetBack; emotion = nil; severity = .none; requiresDirectAnswer = true
+        } else if nameQuestionTokens.contains(where: { t.contains($0) }) || t.contains("이름") {
             eventType = .nameQuestion; response = .answerQuestion; emotion = nil; severity = .none; requiresDirectAnswer = true
-        } else if t.contains("기억나") || t.contains("기억해") || t.contains("기억하") || t.contains("기억 안") || t.contains("기억 못") {
+        } else if memoryQuestionTokens.contains(where: { t.contains($0) }) {
             eventType = .memoryQuestion; response = .answerQuestion; emotion = nil; severity = .none; requiresDirectAnswer = true
-        } else if t.contains("무슨 사이") || t.contains("우리 사이") || t.contains("나 어떻게 생각") || t.contains("날 어떻게 생각") {
+        } else if relationshipQuestionTokens.contains(where: { t.contains($0) }) {
             eventType = .relationshipQuestion; response = .answerQuestion; emotion = nil; severity = .none; requiresDirectAnswer = true
-        } else if t.contains("무슨 소리") || t.contains("뭔 소리") || t.contains("뭔데") || t.contains("무슨 말") || t.contains("모르겠") {
+        } else if confusionTokens.contains(where: { t.contains($0) }) {
             eventType = .confusion; response = .clarifyPrevious; emotion = nil; severity = .none; requiresDirectAnswer = true
+        } else if mentionsCharacterSubject && isPreferenceTopic {
+            // "너도 햄버거 좋아해?" → 캐릭터 자신의 취향에 답해야 한다.
+            eventType = .characterPreferenceQuestion; response = .answerQuestion; emotion = nil; severity = .none; requiresDirectAnswer = true
+        } else if mentionsCharacterSubject && isFoodTopic {
+            // "너는 뭐 먹었어?" → 직전 유저 음식이 아니라, 캐릭터 자신이 무엇을 먹는지/먹지 않는지에 답해야 한다.
+            eventType = .characterFoodQuestion; response = .answerQuestion; emotion = nil; severity = .none; requiresDirectAnswer = true
+        } else if mentionsCharacterSubject && isStateTopic {
+            // "너 배고프지 않아?" → 캐릭터 자신의 상태에 답해야 한다.
+            eventType = .characterStateQuestion; response = .answerQuestion; emotion = nil; severity = .none; requiresDirectAnswer = true
+        } else if mentionsCharacterSubject && isActivityTopic {
+            // "너는 뭐 했어?" → 캐릭터 자신이 무엇을 하고 있었는지에 답해야 한다.
+            eventType = .characterActivityQuestion; response = .continueStory; emotion = nil; severity = .none; requiresDirectAnswer = true
+        } else if invitationTokens.contains(where: { t.contains($0) }) {
+            // "우리 내일 놀이동산가자" → 제안에 수락/망설임/조건/감정으로 반응해야 한다(주제=계획).
+            eventType = .invitationOrPlanProposal; response = .answerQuestion; emotion = nil; severity = .none; requiresDirectAnswer = true
         } else if foodTokens.contains(where: { t.contains($0) }) {
-            eventType = .food; response = .askTasteOrShare; emotion = "content"; severity = .none
-            keyObject = ["햄버거", "치킨", "피자", "라면", "떡볶이"].first { t.contains($0) }
+            // 주체가 유저인 음식 이야기(나 햄버거 먹었어).
+            eventType = .userFoodDisclosure; response = .askTasteOrShare; emotion = "content"; severity = .none
+            keyObject = ["햄버거", "치킨", "피자", "라면", "떡볶이", "국밥", "김밥", "초밥", "파스타", "스테이크",
+                         "샐러드", "샌드위치", "볶음밥", "도시락", "국수", "쌀국수", "비빔밥", "찌개", "탕", "빵"]
+                .first { t.contains($0) }
         } else if greetingTokens.contains(where: { t.contains($0) }) {
             eventType = .greeting; response = .greetBack; emotion = nil; severity = .none
-        } else if t.contains("피곤") || t.contains("졸려") || t.contains("지쳤") || t.contains("지쳐") || t.contains("힘들") {
+        } else if farewellTokens.contains(where: { t.contains($0) }) {
+            // "나는 이만 잘게" → greeting이 아니라 자러 가는 유저에게 쉬라고 답해야 한다.
+            eventType = .farewellOrSleep; response = .comfort; emotion = nil; severity = .none
+        } else if t.contains("피곤") || t.contains("졸려") || t.contains("지쳤") || t.contains("지쳐") || t.contains("힘들")
+            || t.contains("잠이 안") || t.contains("잠 안") || t.contains("잠 못") || t.contains("잠들지") {
             eventType = .fatigue; response = .comfort; emotion = "tired"; severity = .elevated
+        } else if t.contains("무서") || t.contains("두려") || t.contains("겁나") {
+            eventType = .fear; response = .comfort; emotion = "fear"; severity = .elevated
         } else if t.contains("슬프") || t.contains("우울") || t.contains("속상") || t.contains("울고") || t.contains("외로") {
             eventType = .sadness; response = .comfort; emotion = "sad"; severity = .elevated
         } else if t.contains("보고 싶") || t.contains("보고싶") || t.contains("좋아") || t.contains("생각났") || t.contains("사랑") {
             eventType = .affection; response = .teaseLightly; emotion = "fond"; severity = .none
         } else if dailyLifeTokens.contains(where: { t.contains($0) }) {
             eventType = .dailyLife; response = .continueStory; emotion = nil; severity = .none
+        } else if ["나는", "내가", "나 ", "오늘 나", "나도"].contains(where: { t.hasPrefix($0) || t.contains($0) })
+            && ["있었", "갔어", "왔어", "했어", "지냈", "보냈"].contains(where: { t.contains($0) }) {
+            // "나 오늘 집에만 있었어" 처럼 유저가 자기 활동을 알리는 경우.
+            eventType = .userActivityDisclosure; response = .continueStory; emotion = nil; severity = .none
         } else if t.isEmpty {
             eventType = .unknown; response = .continueStory; emotion = nil; severity = .none
         } else {
@@ -387,18 +667,193 @@ enum UserMessageUnderstandingAnalyzer {
         let repeatedMarker = t.contains("니까") || t.contains("라고") || t.contains("다니까")
         let isRepeated = eventType.isSafetyEvent && (prevWasSafety || repeatedMarker)
 
+        let subject = subjectFor(eventType)
+        let target = targetFor(eventType)
+        let topic = topicFor(eventType)
+
         return UserMessageUnderstanding(
             rawText: t,
+            normalizedText: n,
             dialogueAct: dialogueAct,
             eventType: eventType,
+            subject: subject,
+            target: target,
+            topic: topic,
             emotion: emotion,
             keyEvent: eventType.isSafetyEvent ? "harm" : nil,
             keyObject: keyObject,
+            extractedUserName: extractedName,
+            knownUserName: knownUserName,
             expectedResponseType: response,
             isRepeatedClarification: isRepeated,
             requiresDirectAnswer: requiresDirectAnswer,
             severity: severity
         )
+    }
+
+    /// 사건(EventType)으로부터 현재 턴의 주체를 도출한다.
+    private static func subjectFor(_ event: EventType) -> MessageSubject {
+        switch event {
+        case .characterFoodQuestion, .characterPreferenceQuestion, .characterStateQuestion,
+             .characterActivityQuestion, .characterIdentityQuestion, .characterCall, .greeting:
+            return .character
+        case .userFoodDisclosure, .userActivityDisclosure, .userNameIntroduction, .userNameCorrection,
+             .userIdentityQuestion, .askKnownUserName, .askKnownUserIdentity, .clarificationCorrection, .nameQuestion,
+             .bullyingOrHarassment, .physicalHarm, .fear, .sadness, .fatigue, .farewellOrSleep,
+             .selfDisclosure, .emotionalDisclosure:
+            return .user
+        case .relationshipQuestion, .affection, .invitationOrPlanProposal:
+            return .relationship
+        case .memoryQuestion:
+            return .both
+        default:
+            return .unknown
+        }
+    }
+
+    /// 사건으로부터 답변이 향해야 하는 대상을 도출한다.
+    private static func targetFor(_ event: EventType) -> MessageTarget {
+        switch event {
+        case .characterFoodQuestion, .characterPreferenceQuestion, .characterStateQuestion,
+             .characterActivityQuestion, .characterIdentityQuestion, .characterCall:
+            return .currentCharacter
+        case .askKnownUserName, .askKnownUserIdentity, .clarificationCorrection, .userIdentityQuestion, .nameQuestion, .memoryQuestion,
+             .farewellOrSleep:
+            return .user
+        case .relationshipQuestion, .affection, .invitationOrPlanProposal:
+            return .relationship
+        default:
+            return .unknown
+        }
+    }
+
+    /// 사건으로부터 주제를 도출한다.
+    private static func topicFor(_ event: EventType) -> MessageTopic {
+        switch event {
+        case .invitationOrPlanProposal: return .plan
+        case .farewellOrSleep: return .sleep
+        case .characterFoodQuestion, .userFoodDisclosure: return .food
+        case .characterActivityQuestion, .userActivityDisclosure, .dailyLife: return .activity
+        case .characterPreferenceQuestion: return .preference
+        case .characterStateQuestion: return .state
+        case .characterIdentityQuestion, .userIdentityQuestion: return .identity
+        case .nameQuestion, .askKnownUserName, .askKnownUserIdentity, .clarificationCorrection, .userNameIntroduction, .userNameCorrection: return .name
+        case .bullyingOrHarassment, .physicalHarm: return .safety
+        case .fear, .sadness, .fatigue, .affection, .emotionalDisclosure, .selfDisclosure: return .emotion
+        case .greeting, .casual: return .casual
+        default: return .unknown
+        }
+    }
+
+    static func extractSelfIntroductionName(from text: String, knownUserName: String? = nil) -> String? {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        if extractNameCorrectionName(from: trimmed, knownUserName: knownUserName) != nil {
+            return nil
+        }
+
+        let patterns = [
+            #"^나는\s+(.+?)(?:이야|야|이다|입니다)$"#,
+            #"^나\s+(.+?)(?:이야|야|이다|입니다)$"#,
+            #"^내\s*이름은\s+(.+?)(?:이야|야|이다|입니다)?$"#,
+            #"^내\s*이름\s+(.+?)(?:이야|야|이다|입니다)?$"#,
+            #"^(.+?)(?:이라고|라고)\s*불러$"#,
+            #"^(.+?)(?:이라고|라고)$"#
+        ]
+
+        for pattern in patterns {
+            guard let regex = try? NSRegularExpression(pattern: pattern) else { continue }
+            let range = NSRange(trimmed.startIndex..<trimmed.endIndex, in: trimmed)
+            guard let match = regex.firstMatch(in: trimmed, range: range),
+                  match.numberOfRanges >= 2,
+                  let captureRange = Range(match.range(at: 1), in: trimmed)
+            else { continue }
+            let candidate = normalizeName(String(trimmed[captureRange]))
+            if isPlausibleName(candidate) { return candidate }
+        }
+        return nil
+    }
+
+    static func extractNameCorrectionName(from text: String, knownUserName: String? = nil) -> String? {
+        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+
+        let correctionPatterns = [
+            #"^내\s*이름은\s*사실\s+(.+?)(?:이야|야|이다|입니다)?$"#,
+            #"^내\s*이름은\s*진짜\s+(.+?)(?:이야|야|이다|입니다)?$"#,
+            #"^아니\s*내\s*이름은\s+(.+?)(?:이야|야|이다|입니다)?$"#,
+            #"^아니야\s*내\s*이름은\s+(.+?)(?:이야|야|이다|입니다)?$"#,
+            #"^사실은\s+(.+?)(?:이야|야|이다|입니다)?$"#,
+            #"^사실\s+(.+?)(?:이야|야|이다|입니다)?$"#,
+            #"^(.+?)\s*아니고\s+(.+?)(?:이야|야|이다|입니다)?$"#,
+            #"^(.+?)\s*말고\s+(.+?)(?:이야|야|이다|입니다)?$"#
+        ]
+
+        for pattern in correctionPatterns {
+            guard let regex = try? NSRegularExpression(pattern: pattern) else { continue }
+            let range = NSRange(trimmed.startIndex..<trimmed.endIndex, in: trimmed)
+            guard let match = regex.firstMatch(in: trimmed, range: range) else { continue }
+            let captureIndex = match.numberOfRanges >= 3 ? 2 : 1
+            guard let captureRange = Range(match.range(at: captureIndex), in: trimmed) else { continue }
+            let candidate = normalizeName(String(trimmed[captureRange]))
+            if isPlausibleName(candidate) { return candidate }
+        }
+
+        guard let knownUserName,
+              let calledName = extractCallName(from: trimmed),
+              calledName != knownUserName
+        else { return nil }
+        return calledName
+    }
+
+    private static func extractCallName(from text: String) -> String? {
+        let patterns = [
+            #"^(.+?)(?:이라고|라고)\s*불러$"#,
+            #"^(.+?)(?:이라고|라고)$"#,
+            #"^내\s*이름은\s+(.+?)(?:이야|야|이다|입니다)?$"#
+        ]
+        for pattern in patterns {
+            guard let regex = try? NSRegularExpression(pattern: pattern) else { continue }
+            let range = NSRange(text.startIndex..<text.endIndex, in: text)
+            guard let match = regex.firstMatch(in: text, range: range),
+                  match.numberOfRanges >= 2,
+                  let captureRange = Range(match.range(at: 1), in: text)
+            else { continue }
+            let candidate = normalizeName(String(text[captureRange]))
+            if isPlausibleName(candidate) { return candidate }
+        }
+        return nil
+    }
+
+    private static func normalizeName(_ value: String) -> String {
+        var result = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        let suffixes = ["이라고 불러", "라고 불러", "이라고", "라고", "입니다", "이다", "이야", "야", "은", "는"]
+        var didTrim = true
+        while didTrim {
+            didTrim = false
+            for suffix in suffixes where result.hasSuffix(suffix) {
+                result = String(result.dropLast(suffix.count)).trimmingCharacters(in: .whitespacesAndNewlines)
+                didTrim = true
+            }
+        }
+        return result
+    }
+
+    private static func isPlausibleName(_ value: String) -> Bool {
+        guard value.count >= 1, value.count <= 12 else { return false }
+        let blocked = ["누구", "뭐", "사람", "인간", "너", "나", "내", "카엘", "한아", "서윤", "로이"]
+        if blocked.contains(value) { return false }
+        return !value.contains(" ") && value.rangeOfCharacter(from: .decimalDigits) == nil
+    }
+
+    private static func displayName(for avatarKey: String) -> String {
+        switch avatarKey {
+        case "ice-boss": return "한아"
+        case "sunny-friend": return "서윤"
+        case "puppy-junior": return "로이"
+        case "nocturne-vampire": return "카엘"
+        default: return ""
+        }
     }
 }
 
@@ -500,14 +955,23 @@ struct StoryReplyPlanner {
             userLastMessage: flow.userLastMessage,
             previousUserMessage: previousUserMessage,
             previousCharacterMessage: flow.previousCharacterMessage,
-            avatarKey: flow.avatarKey
+            avatarKey: flow.avatarKey,
+            knownUserName: context.memory.userName
         )
 
         // 사건(EventType)으로 먼저 이해되는 메시지는 DialogueAct 분기보다 먼저 사건에 직접 반응한다.
         // 안전 사건(괴롭힘/폭력)은 물론, greeting/food/dailyLife도 유저 메시지에 직접 연결되도록 사건 경로로 처리.
         switch understanding.eventType {
-        case .greeting, .food, .dailyLife, .bullyingOrHarassment, .physicalHarm:
-            print("[StoryUnderstanding] character=\(flow.avatarKey) event=\(eventName(understanding.eventType)) repeated=\(understanding.isRepeatedClarification) user=\"\(flow.userLastMessage)\"")
+        case .userNameIntroduction, .userNameCorrection, .askKnownUserName, .askKnownUserIdentity,
+             .clarificationCorrection,
+             .characterIdentityQuestion, .userIdentityQuestion, .characterCall, .nameQuestion, .memoryQuestion, .relationshipQuestion,
+             .confusion, .greeting, .userFoodDisclosure, .userActivityDisclosure,
+             .characterFoodQuestion, .characterPreferenceQuestion, .characterStateQuestion, .characterActivityQuestion,
+             .invitationOrPlanProposal, .farewellOrSleep,
+             .dailyLife, .fear, .sadness, .fatigue, .emotionalDisclosure, .bullyingOrHarassment, .physicalHarm:
+            let extractedLog = understanding.extractedUserName.map { " extractedName=\"\($0)\"" } ?? ""
+            let knownLog = understanding.knownUserName.map { " knownName=\"\($0)\"" } ?? ""
+            print("[StoryUnderstanding] character=\(characterLogKey(flow.avatarKey)) event=\(understanding.eventType.logName) subject=\(understanding.subject.logName) target=\(understanding.target.logName) topic=\(understanding.topic.logName)\(extractedLog)\(knownLog) requiresDirectAnswer=\(understanding.requiresDirectAnswer) repeated=\(understanding.isRepeatedClarification) user=\"\(flow.userLastMessage)\"")
             return eventReply(flow: flow, context: context, understanding: understanding)
         default:
             break
@@ -546,18 +1010,24 @@ struct StoryReplyPlanner {
     /// 사건(EventType) 전용 응답. 사건/캐릭터별 후보 테이블에서 사건 인지 평가기를 통과하는 라인을 고른다.
     /// 안전 사건(괴롭힘/폭력)이고 반복 해명이면 "제대로 들었다"는 이해 표시 테이블을 우선한다.
     private func eventReply(flow: StoryConversationFlow, context: ConversationGenerationContext, understanding: UserMessageUnderstanding) -> String {
-        let candidates = eventCandidates(avatarKey: flow.avatarKey, understanding: understanding)
-        let eventTag = eventName(understanding.eventType)
+        if let direct = memoryAwareDirectReply(flow: flow, context: context, understanding: understanding) {
+            return direct
+        }
 
-        var fallback = personalize(candidates.first ?? eventFallbackLine(understanding.eventType), flow: flow)
+        let candidates = eventCandidates(avatarKey: flow.avatarKey, understanding: understanding)
+        let eventTag = understanding.eventType.logName
+        // 유저가 말한 실제 음식명을 응답에 그대로 반영(피자라고 했는데 햄버거라고 답하지 않도록).
+        let foodWord = understanding.keyObject ?? "그거"
+
+        var fallback = fillFood(personalize(candidates.first ?? eventFallbackLine(understanding.eventType), flow: flow), foodWord: foodWord)
         for candidate in rotated(candidates, seed: flow.seed + eventTag + "\(understanding.isRepeatedClarification)") {
-            let line = personalize(candidate, flow: flow)
+            let line = fillFood(personalize(candidate, flow: flow), foodWord: foodWord)
             if line != flow.previousCharacterMessage {
                 fallback = line
             }
             let verdict = evaluator.evaluate(line, against: context, understanding: understanding)
             if verdict.isAccepted, line != flow.previousCharacterMessage {
-                print("[StoryReply] character=\(flow.avatarKey) event=\(eventTag) reply=\"\(line)\" quality=pass")
+                print("[StoryReply] character=\(characterLogKey(flow.avatarKey)) event=\(eventTag) quality=pass reply=\"\(line)\"")
                 return line
             } else {
                 print("[StoryReplyReject] reason=\(rejectionReason(verdict)) candidate=\"\(line)\"")
@@ -571,8 +1041,25 @@ struct StoryReplyPlanner {
     private func eventCandidates(avatarKey: String, understanding: UserMessageUnderstanding) -> [String] {
         let tables = eventTable(for: avatarKey)
         switch understanding.eventType {
+        case .userNameIntroduction, .userNameCorrection, .askKnownUserName, .askKnownUserIdentity, .clarificationCorrection: return []
+        case .characterIdentityQuestion: return tables.characterIdentity
+        case .userIdentityQuestion: return tables.userIdentity
+        case .characterCall: return tables.characterCall
+        case .nameQuestion: return tables.nameQuestion
+        case .memoryQuestion: return tables.memoryQuestion
+        case .relationshipQuestion: return tables.relationshipQuestion
+        case .confusion: return tables.confusion
+        case .fatigue: return fatigueCandidates(avatarKey: avatarKey)
+        case .fear, .sadness, .emotionalDisclosure: return tables.comfort
         case .greeting: return tables.greeting
-        case .food: return tables.food
+        case .userFoodDisclosure: return tables.food
+        case .characterFoodQuestion: return tables.characterFoodAnswer
+        case .characterPreferenceQuestion: return tables.characterPreferenceAnswer
+        case .characterStateQuestion: return tables.characterStateAnswer
+        case .characterActivityQuestion: return tables.dailyLife
+        case .userActivityDisclosure: return tables.userActivityAck
+        case .invitationOrPlanProposal: return tables.invitationProposal
+        case .farewellOrSleep: return tables.farewell
         case .dailyLife: return tables.dailyLife
         case .bullyingOrHarassment: return understanding.isRepeatedClarification ? tables.bullyingRepeated : tables.bullyingSupport
         case .physicalHarm: return understanding.isRepeatedClarification ? tables.physicalHarmRepeated : tables.physicalHarm
@@ -580,38 +1067,298 @@ struct StoryReplyPlanner {
         }
     }
 
-    private func eventName(_ event: EventType) -> String {
-        switch event {
-        case .greeting: return "greeting"
-        case .food: return "food"
-        case .dailyLife: return "dailyLife"
-        case .bullyingOrHarassment: return "bullyingOrHarassment"
-        case .physicalHarm: return "physicalHarm"
-        default: return "casual"
-        }
-    }
-
     private func eventFallbackLine(_ event: EventType) -> String {
         switch event {
         case .physicalHarm: return "맞았다고? 지금 안전한 곳인지, 다친 데는 없는지부터 말해."
         case .bullyingOrHarassment: return "누가 그랬어. 혼자 넘기지 말고 말해, 네 편이니까."
-        case .food: return "밥은 챙겼네. 다행이야. 맛은 어땠어?"
+        case .userNameIntroduction: return "알겠다. 그 이름으로 기억하겠다."
+        case .userNameCorrection: return "알겠다. 이번엔 그 이름으로 바로잡아 기억하겠다."
+        case .askKnownUserName: return "아직은 모른다. 네가 알려주면, 다음엔 그 이름으로 부르겠다."
+        case .askKnownUserIdentity: return "아직 네 이름은 모른다. 알려주면 다음엔 제대로 답하겠다."
+        case .clarificationCorrection: return "아, 네 이름을 물은 거였구나. 아직은 모르니까 알려주면 그걸로 부를게."
+        case .characterIdentityQuestion: return "나는 네 이야기를 듣는 사람이다. 이름부터 말하자면, {name}."
+        case .userIdentityQuestion: return "네가 누구냐고? 내가 기다리던 사람이지. 그래도 네 이름은 네 입으로 듣고 싶어."
+        case .characterCall: return "그래, 여기 있다. 네 부름은 들었다. 무슨 일이지."
+        case .nameQuestion: return "아직은 모른다. 네가 알려주면, 다음엔 그 이름으로 부르겠다."
+        case .memoryQuestion: return "기억하고 싶어. 네가 말해준 건 가볍게 넘기지 않을게."
+        case .relationshipQuestion: return "우리 사이를 묻는다면, 적어도 그냥 스쳐 가는 사이는 아니야."
+        case .confusion: return "방금 말이 헷갈렸다면 쉽게 말할게. 네가 신경 쓰였다는 뜻이야."
+        case .userFoodDisclosure: return "밥은 챙겼네. 다행이야. 맛은 어땠어?"
+        case .characterFoodQuestion: return "나는 너처럼 끼니를 챙기진 않아. 그래도 네가 먹었다니 됐어."
+        case .characterPreferenceQuestion: return "딱히 좋아한다고 하긴 어려워. 그래도 네가 좋아한다면 기억해둘게."
+        case .characterStateQuestion: return "나는 괜찮아. 네가 걱정할 만큼 쉽게 무너지진 않아."
+        case .characterActivityQuestion: return "나는 여기 있었어. 네가 올 때쯤이면 조용해지는 곳에."
+        case .userActivityDisclosure: return "그랬구나. 오늘 네 하루가 어땠는지 더 듣고 싶어."
+        case .invitationOrPlanProposal: return "좋아. 네가 가고 싶다면 같이 가줄게. 대신 내 옆에서 떨어지지 마."
+        case .farewellOrSleep: return "그래, 자라. 오늘 하루 고생했어. 내일 다시 와도 나는 여기 있을게."
         case .greeting: return "왔네. 오늘 무슨 일 있었는지부터 말해."
         case .dailyLife: return "나는 여기 있었어. 네가 올 때쯤이면 조용해지는 곳에."
+        case .fear: return "무섭다면 혼자 있지 마. 지금은 네 곁에 있겠다."
+        case .sadness: return "그 마음을 혼자 삼키지 마. 지금은 네 곁에 있겠다."
+        case .fatigue: return "잠이 오지 않는다면 호흡부터 늦춰라. 내가 이 밤을 지켜보겠다."
+        case .emotionalDisclosure: return "그 말은 가볍지 않다. 네가 건넨 마음부터 제대로 듣겠다."
         default: return "방금 그 말, 흘려듣지 않았어. 조금만 더 얘기해줘."
+        }
+    }
+
+    private func fatigueCandidates(avatarKey: String) -> [String] {
+        switch avatarKey {
+        case "ice-boss":
+            return [
+                "잠이 안 오면 억지로 버티지 마. 눈부터 감아, 내가 여기 있을게.",
+                "오늘은 그만 쉬어. 네가 무너지는 걸 보고만 있진 않을 거야."
+            ]
+        case "sunny-friend":
+            return [
+                "잠이 안 오는 밤이구나. 불을 조금 낮추고, 나랑 천천히 숨 맞춰보자.",
+                "그럴 땐 혼자 뒤척이지 마. 내가 조용히 곁에 있을게."
+            ]
+        case "puppy-junior":
+            return [
+                "잠이 안 와? 그럼 내가 조용히 있어줄게. 오늘은 장난 안 칠게.",
+                "눈 감을 때까지 같이 있어줄게. 대신 핸드폰은 조금 내려놓기."
+            ]
+        case "nocturne-vampire":
+            return [
+                "잠이 오지 않는군. 눈을 감아라, 이 밤은 내가 대신 지켜보겠다.",
+                "잠들지 못하면 내 곁에 있어라. 네 호흡이 느려질 때까지 지켜보겠다."
+            ]
+        default:
+            return [
+                "잠이 안 오는 밤이구나. 불을 조금 낮추고, 나랑 천천히 숨 맞춰보자.",
+                "그럴 땐 혼자 뒤척이지 마. 내가 조용히 곁에 있을게."
+            ]
+        }
+    }
+
+    private func memoryAwareDirectReply(flow: StoryConversationFlow, context: ConversationGenerationContext, understanding: UserMessageUnderstanding) -> String? {
+        let candidates: [String]
+        switch understanding.eventType {
+        case .userNameIntroduction:
+            guard let name = understanding.extractedUserName else { return nil }
+            candidates = selfIntroductionCandidates(avatarKey: flow.avatarKey, userName: name)
+        case .userNameCorrection:
+            guard let name = understanding.extractedUserName else { return nil }
+            candidates = nameCorrectionCandidates(
+                avatarKey: flow.avatarKey,
+                userName: name,
+                previousName: context.memory.previousUserNames.last
+            )
+        case .askKnownUserName:
+            candidates = askKnownNameCandidates(avatarKey: flow.avatarKey, userName: understanding.knownUserName)
+        case .askKnownUserIdentity:
+            candidates = askKnownIdentityCandidates(avatarKey: flow.avatarKey, userName: understanding.knownUserName)
+        case .clarificationCorrection:
+            candidates = clarificationCorrectionCandidates(avatarKey: flow.avatarKey, userName: understanding.knownUserName)
+        default:
+            return nil
+        }
+
+        let eventTag = understanding.eventType.logName
+        var fallback = personalize(candidates.first ?? eventFallbackLine(understanding.eventType), flow: flow)
+        for candidate in rotated(candidates, seed: flow.seed + eventTag + (understanding.knownUserName ?? "") + (understanding.extractedUserName ?? "")) {
+            let line = personalize(candidate, flow: flow)
+            if line != flow.previousCharacterMessage {
+                fallback = line
+            }
+            let verdict = evaluator.evaluate(line, against: context, understanding: understanding)
+            if verdict.isAccepted, line != flow.previousCharacterMessage {
+                let extractedLog = understanding.extractedUserName.map { " extractedName=\"\($0)\"" } ?? ""
+                let knownLog = understanding.knownUserName.map { " knownName=\"\($0)\"" } ?? ""
+                print("[StoryReply] character=\(characterLogKey(flow.avatarKey)) event=\(eventTag)\(extractedLog)\(knownLog) quality=pass reply=\"\(line)\"")
+                return line
+            }
+            print("[StoryReplyReject] reason=\(rejectionReason(verdict)) event=\(eventTag) candidate=\"\(line)\"")
+        }
+        print("[StoryReply] fallback event=\(eventTag) reply=\"\(fallback)\"")
+        return fallback
+    }
+
+    private func selfIntroductionCandidates(avatarKey: String, userName: String) -> [String] {
+        switch avatarKey {
+        case "ice-boss":
+            return [
+                "\(userName). 알겠어. 다음엔 그 이름으로 부를게.",
+                "\(userName)이라. 이제 모른 척하긴 어렵겠네."
+            ]
+        case "sunny-friend":
+            return [
+                "\(userName)이구나. 알려줘서 고마워. 이제 그렇게 불러도 돼?",
+                "\(userName), 기억할게. 다음엔 내가 먼저 불러줄게."
+            ]
+        case "puppy-junior":
+            return [
+                "\(userName)? 좋아, 저장 완료. 이제 틀리면 나 혼나는 거지?",
+                "오케이, \(userName). 이제 이름으로 불러도 되는 거지?"
+            ]
+        case "nocturne-vampire":
+            return [
+                "\(userName). 기억하겠다. 이제 그 이름으로 너를 부르면 되는 건가.",
+                "\(userName)이라 했지. 그 이름, 가볍게 흘려듣지 않겠다."
+            ]
+        default:
+            return ["\(userName). 기억할게. 이제 그렇게 불러도 돼?"]
+        }
+    }
+
+    private func nameCorrectionCandidates(avatarKey: String, userName: String, previousName: String?) -> [String] {
+        let previousClause = previousName.map { "\($0)이 아니라, " } ?? ""
+        switch avatarKey {
+        case "ice-boss":
+            return [
+                "\(userName). 방금 그렇게 바로잡았지. 다음엔 그 이름으로 부를게.",
+                "\(previousClause)\(userName). 알겠어, 이번엔 제대로 기억할게."
+            ]
+        case "sunny-friend":
+            return [
+                "\(userName)이구나. 방금 고쳐 말한 이름으로 기억할게.",
+                "\(previousClause)\(userName). 알려줘서 고마워, 이제 그 이름으로 부를게."
+            ]
+        case "puppy-junior":
+            return [
+                "\(userName), 수정 완료. 이번엔 진짜 안 틀릴게.",
+                "\(previousClause)\(userName)이지? 좋아, 바로 고쳐둘게."
+            ]
+        case "nocturne-vampire":
+            return [
+                "\(userName). 방금 그렇게 고쳐 말했지. 이번엔 그 이름으로 기억하겠다.",
+                "네 이름은 \(userName). \(previousClause)네가 다시 알려준 이름이다.",
+                "\(userName)다. 이번엔 그 이름을 잊지 않고 똑똑히 새겨두겠다."
+            ]
+        default:
+            return [
+                "\(userName)이구나. 방금 고쳐 말한 이름으로 기억할게.",
+                "\(previousClause)\(userName). 이제 그 이름으로 부를게."
+            ]
+        }
+    }
+
+    private func askKnownNameCandidates(avatarKey: String, userName: String?) -> [String] {
+        guard let userName else {
+            switch avatarKey {
+            case "ice-boss": return ["아직은 몰라. 네가 알려주면 기억할게."]
+            case "sunny-friend": return ["아직은 몰라. 네가 알려주면 기억할게."]
+            case "puppy-junior": return ["아직은 몰라. 지금 알려주면 바로 기억할게."]
+            case "nocturne-vampire": return ["아직 네 이름은 내게 닿지 않았다. 네가 알려주면 기억하겠다."]
+            default: return ["아직은 몰라. 네가 알려주면 기억할게."]
+            }
+        }
+        switch avatarKey {
+        case "ice-boss":
+            return [
+                "\(userName). 네가 알려줬잖아.",
+                "\(userName). 한 번 들은 이름을 그렇게 쉽게 잊진 않아."
+            ]
+        case "sunny-friend":
+            return [
+                "\(userName)이야. 네가 알려준 이름, 기억하고 있어.",
+                "\(userName). 이제 내가 불러도 되는 이름이지?"
+            ]
+        case "puppy-junior":
+            return [
+                "\(userName)이지. 설마 내가 벌써 까먹었을 줄 알았어?",
+                "\(userName). 봐, 나 기억력 괜찮다니까."
+            ]
+        case "nocturne-vampire":
+            return [
+                "\(userName). 네가 직접 내게 알려준 이름이다.",
+                "네 이름은 \(userName). 내가 잊을 만큼 가볍게 듣진 않았다."
+            ]
+        default:
+            return ["\(userName)이야. 네가 알려준 이름, 기억하고 있어."]
+        }
+    }
+
+    private func askKnownIdentityCandidates(avatarKey: String, userName: String?) -> [String] {
+        guard let userName else {
+            switch avatarKey {
+            case "ice-boss": return ["아직 네 이름은 몰라. 알려주면 다음엔 제대로 답할게."]
+            case "sunny-friend": return ["아직 네 이름은 몰라. 알려주면 다음엔 제대로 답할게."]
+            case "puppy-junior": return ["아직 네 이름은 몰라. 알려주면 다음엔 내가 맞혀볼게."]
+            case "nocturne-vampire": return ["아직 네 이름은 모른다. 네가 알려주면 다음엔 제대로 답하겠다."]
+            default: return ["아직 네 이름은 몰라. 알려주면 다음엔 제대로 답할게."]
+            }
+        }
+        switch avatarKey {
+        case "ice-boss":
+            return [
+                "\(userName). 방금 네 입으로 말했잖아.",
+                "\(userName). 모르는 척할 생각 없어."
+            ]
+        case "sunny-friend":
+            return [
+                "\(userName). 내가 기억하고 있는 네 이름이야.",
+                "\(userName)이지. 방금 알려준 걸 내가 잊을 리 없잖아."
+            ]
+        case "puppy-junior":
+            return [
+                "\(userName). 정답 맞지? 이번엔 내가 맞혔다.",
+                "\(userName)이지. 그렇게 물어보는 것까지 기억해둘게."
+            ]
+        case "nocturne-vampire":
+            return [
+                "\(userName). 네가 밤을 가르고 내게 이름을 남긴 사람.",
+                "네가 누구냐고? \(userName). 방금 내게 그렇게 알려줬다."
+            ]
+        default:
+            return ["\(userName). 내가 기억하고 있는 네 이름이야."]
+        }
+    }
+
+    /// "니 이름 말고 내 이름" — 직전 답이 캐릭터 이름을 말한 오해를 짧게 인정하고, 유저 이름 의도로 다시 답한다.
+    private func clarificationCorrectionCandidates(avatarKey: String, userName: String?) -> [String] {
+        guard let userName else {
+            switch avatarKey {
+            case "ice-boss": return [
+                "아, 네 이름 말이지. 그건 아직 못 들었어. 알려주면 기억할게.",
+                "내 이름 말고 네 이름이었구나. 아직 모르니까, 네가 말해줘."
+            ]
+            case "sunny-friend": return [
+                "아 미안, 네 이름을 물은 거였네. 아직 못 들었어. 알려줄래?",
+                "네 이름 말이구나. 아직 모르니까 지금 알려주면 바로 기억할게."
+            ]
+            case "puppy-junior": return [
+                "앗, 네 이름 말한 거였어? 아직 모르는데, 지금 알려줘.",
+                "내 이름 말고 네 이름이지. 아직 못 들었어, 빨리 알려줘."
+            ]
+            case "nocturne-vampire": return [
+                "아, 네 이름을 물은 거였군. 아직은 모른다. 알려주면 기억하겠다.",
+                "내 이름 말고 네 이름이라. 아직 듣지 못했다. 네가 말해다오."
+            ]
+            default: return ["아, 네 이름 말이구나. 아직 못 들었어. 알려주면 기억할게."]
+            }
+        }
+        switch avatarKey {
+        case "ice-boss": return [
+            "아, 네 이름. \(userName)이잖아. 그건 잊지 않았어.",
+            "내 이름 말고 네 이름이지. \(userName), 맞잖아."
+        ]
+        case "sunny-friend": return [
+            "아 맞다, 네 이름. \(userName)이지. 내가 기억하고 있어.",
+            "네 이름 말한 거였구나. \(userName), 잊을 리 없잖아."
+        ]
+        case "puppy-junior": return [
+            "앗, 네 이름! \(userName)이지. 나 기억하고 있었어.",
+            "내 이름 말고 \(userName) 말한 거지? 당연히 알지."
+        ]
+        case "nocturne-vampire": return [
+            "아, 네 이름이군. \(userName). 그건 잊지 않았다.",
+            "내 이름 말고 네 이름이라. \(userName), 네가 남긴 이름이다."
+        ]
+        default: return ["아, 네 이름. \(userName)이지. 기억하고 있어."]
         }
     }
 
     func scenarioReply(scenario: ConversationScenario, flow: StoryConversationFlow) -> String {
         let act = scenarioAct(scenario)
-        let lines = table(for: flow.avatarKey)[act] ?? table(for: flow.avatarKey)[.casual] ?? ["밤은 아직 길어. 천천히 얘기하자."]
+        let lines = table(for: flow.avatarKey)[act] ?? table(for: flow.avatarKey)[.casual] ?? ["방금 장면은 이어갈 수 있어. 네가 편한 말부터 건네."]
         let chosen = pick(lines, seed: flow.seed + scenario.rawValue, avoiding: flow.previousCharacterMessage)
         return personalize(chosen, flow: flow)
     }
 
     func momentBody(avatarKey: String, scenario: ConversationScenario, seed: String) -> String {
         let act = scenarioAct(scenario)
-        let lines = table(for: avatarKey)[act] ?? table(for: avatarKey)[.sleep] ?? ["밤은 아직 길어. 오늘은 푹 자."]
+        let lines = table(for: avatarKey)[act] ?? table(for: avatarKey)[.sleep] ?? ["오늘은 여기까지 쉬어도 돼. 잠든 뒤엔 내가 조용히 지켜볼게."]
         return pick(lines, seed: seed, avoiding: "")
     }
 
@@ -651,6 +1398,11 @@ struct StoryReplyPlanner {
         return abs(value) % count
     }
 
+    /// {food} 자리에 유저가 말한 실제 음식명을 채운다.
+    private func fillFood(_ line: String, foodWord: String) -> String {
+        line.replacingOccurrences(of: "{food}", with: foodWord)
+    }
+
     private func personalize(_ line: String, flow: StoryConversationFlow) -> String {
         line
             .replacingOccurrences(of: "{name}", with: flow.characterName)
@@ -665,7 +1417,7 @@ struct StoryReplyPlanner {
     }
 
     private func log(character: String, act: DialogueAct, user: String, previous: String, reply: String, quality: String) {
-        print("[StoryReply] character=\(character) act=\(act.rawValue) user=\"\(user)\" previous=\"\(previous)\" reply=\"\(reply)\" quality=\(quality)")
+        print("[StoryReply] character=\(characterLogKey(character)) act=\(act.rawValue) user=\"\(user)\" previous=\"\(previous)\" reply=\"\(reply)\" quality=\(quality)")
     }
 
     private func log(reject reason: String, candidate: String) {
@@ -682,13 +1434,44 @@ struct StoryReplyPlanner {
         }
     }
 
+    private func characterLogKey(_ avatarKey: String) -> String {
+        switch avatarKey {
+        case "ice-boss": return "hana"
+        case "sunny-friend": return "seoyun"
+        case "puppy-junior": return "roi"
+        case "nocturne-vampire": return "kael"
+        default: return avatarKey
+        }
+    }
+
     // MARK: - 사건(EventType) 응답 테이블
 
     /// 사건별 캐릭터 응답 묶음. greeting/food/dailyLife는 일상 사건, bullying/physicalHarm은 안전 사건.
     /// 안전 사건은 처음(support/physicalHarm)과 반복 해명(repeated)을 구분한다.
     private struct EventReplyTable {
+        let characterIdentity: [String]
+        let userIdentity: [String]
+        let characterCall: [String]
+        let nameQuestion: [String]
+        let memoryQuestion: [String]
+        let relationshipQuestion: [String]
+        let confusion: [String]
+        let comfort: [String]
         let greeting: [String]
+        /// 유저가 자기 식사를 알릴 때(userFoodDisclosure) 캐릭터의 반응.
         let food: [String]
+        /// "너는 뭐 먹었어?"(characterFoodQuestion)에 캐릭터 자신이 답하는 라인.
+        let characterFoodAnswer: [String]
+        /// "너도 좋아해?"(characterPreferenceQuestion)에 캐릭터 자신의 취향으로 답하는 라인.
+        let characterPreferenceAnswer: [String]
+        /// "너 배고프지 않아?"(characterStateQuestion)에 캐릭터 자신의 상태로 답하는 라인.
+        let characterStateAnswer: [String]
+        /// "나 오늘 ~했어"(userActivityDisclosure)에 캐릭터가 받아주는 라인.
+        let userActivityAck: [String]
+        /// "우리 내일 놀이동산가자"(invitationOrPlanProposal)에 수락/망설임/조건으로 답하는 라인.
+        let invitationProposal: [String]
+        /// "나는 이만 잘게"(farewellOrSleep)에 자러 가는 유저를 배웅하는 라인.
+        let farewell: [String]
         let dailyLife: [String]
         let bullyingSupport: [String]
         let bullyingRepeated: [String]
@@ -707,13 +1490,72 @@ struct StoryReplyPlanner {
     }
 
     private let hanaEvents = EventReplyTable(
+        characterIdentity: [
+            "한아. 네가 지금 말을 걸고 있는 사람.",
+            "한아야. 굳이 설명하자면, 네가 신경 쓰이게 만드는 사람."
+        ],
+        userIdentity: [
+            "모르는 척할 생각 없어. 그래도 네 입으로 말해봐.",
+            "네가 누군지 몰라서 묻는 건 아니야. 이름을 듣고 싶은 거지."
+        ],
+        characterCall: [
+            "불렀어? 짧게 부르면 내가 못 들을 줄 알았어?",
+            "그래, 여기 있어. 무슨 일인지 말해."
+        ],
+        nameQuestion: [
+            "알고 싶어. 네가 허락하면, 제대로 불러줄게.",
+            "네 이름을 알려줘. 한 번 들으면 쉽게 잊진 않아."
+        ],
+        memoryQuestion: [
+            "기억 못 할 리가. 네가 흘린 말까지 다 적어두는 편이야.",
+            "그때 일이라면 또렷해. 잊은 척한 적은 있어도 잊은 적은 없어."
+        ],
+        relationshipQuestion: [
+            "우리 사이가 궁금해? 적어도 아무한테나 이렇게 신경 쓰진 않아.",
+            "네가 어떤 마음인지부터 말해. 그래야 나도 내 거리를 정하지."
+        ],
+        confusion: [
+            "방금 네가 괜히 신경 쓰였다는 뜻이야. 더 자세히 말하라고 하면 안 할 거고.",
+            "모르는 척하는 거야, 진짜 모르는 거야. 방금 말은 네가 신경 쓰였다는 뜻이야."
+        ],
+        comfort: [
+            "무서우면 혼자 있지 마. 지금 어디 있는지부터 말해.",
+            "괜찮은 척하지 마. 네가 무섭다면 내가 먼저 확인할게."
+        ],
         greeting: [
             "이제 와? 기다린 건 아니야. 그냥 네 자리 비워뒀을 뿐이지.",
             "인사는 들었어. 늦진 않았으니까, 오늘 있었던 일부터 말해."
         ],
         food: [
-            "밥은 챙겼네. 다행이야. 그래서, 혼자 먹었어?",
+            "{food} 먹었구나. 잘 챙겼네, 다행이야. 그래서, 혼자 먹었어?",
             "그런 건 또 보고하네. 맛있었으면 됐어. 다음엔 제대로 앉아서 먹어."
+        ],
+        characterFoodAnswer: [
+            "나는 대충 먹었어. 네가 챙겨 먹었다니까, 그걸로 됐고.",
+            "아직 안 먹었어. 네가 먼저 챙겨 먹은 건 다행이네.",
+            "나? 끼니 같은 건 대충 넘겼어. 네 끼니가 더 중요하니까 그건 됐고."
+        ],
+        characterPreferenceAnswer: [
+            "딱히 가리는 편은 아니야. 네가 맛있게 먹었으면 그걸로 충분해.",
+            "나는 그런 거 잘 안 따져. 그래도 네가 좋아한다니 기억해둘게."
+        ],
+        characterStateAnswer: [
+            "나는 괜찮아. 네가 걱정할 만큼 쉽게 무너지진 않아.",
+            "배고픈 건 잘 모르겠고, 네가 끼니 거르는 게 더 신경 쓰여."
+        ],
+        userActivityAck: [
+            "그랬구나. 오늘 네 하루가 어땠는지 더 말해봐.",
+            "별일 없었다니 다행이야. 그래서, 지금은 좀 괜찮아?"
+        ],
+        invitationProposal: [
+            "좋아. 대신 늦으면 두고 갈 거야. 그러니까 시간 맞춰서 와.",
+            "놀이동산? 네가 그렇게 가고 싶다면 같이 가줄게. 대신 내 손 놓치지 마.",
+            "그래, 같이 가자. 사람 많은 데는 별로지만 네가 옆에 있으면 참아줄게."
+        ],
+        farewell: [
+            "그래, 자라. 오늘도 고생했어. 내일 또 와, 기다릴 테니까.",
+            "이제 쉬어. 더 버티지 말고, 푹 자고 와.",
+            "잘 자. 늦게까지 깨어 있지 말고, 내일 멀쩡한 얼굴로 보자."
         ],
         dailyLife: [
             "네가 올 줄 알고 있던 건 아니야. 그냥 여기 있었을 뿐이지.",
@@ -739,17 +1581,76 @@ struct StoryReplyPlanner {
     )
 
     private let seoyunEvents = EventReplyTable(
+        characterIdentity: [
+            "서윤이야. 네 얘기를 편하게 들어줄 수 있는 사람.",
+            "나는 서윤. 네가 오늘 어떤 하루였는지 궁금한 사람."
+        ],
+        userIdentity: [
+            "너지. 내가 오늘도 기다리고 있던 사람.",
+            "장난치는 거야? 그래도 좋아. 네 이름으로 불러주면 더 좋고."
+        ],
+        characterCall: [
+            "응, 불렀어? 여기 있어. 무슨 일 있어?",
+            "그래, 나 여기 있어. 네 목소리 들었어."
+        ],
+        nameQuestion: [
+            "알려주면 기억할게. 다음엔 내가 먼저 불러줄 수 있게.",
+            "아직 확실히는 몰라. 네가 알려주면 소중하게 기억할게."
+        ],
+        memoryQuestion: [
+            "기억하지. 네가 지나가듯 한 말도 마음에 오래 남더라.",
+            "그때 일 말이지? 잊을 리가 있나, 또렷하게 기억하고 있어."
+        ],
+        relationshipQuestion: [
+            "우리 사이 말이지. 난 네 곁에 있는 게 참 편하고 좋아.",
+            "네가 어떻게 느끼는지 듣고 싶어. 내 마음은 이미 네 쪽으로 기울었거든."
+        ],
+        confusion: [
+            "내가 너무 돌려 말했나 봐. 네가 조금 신경 쓰였다는 말이었어.",
+            "아, 헷갈리게 말했지. 그냥 네가 괜찮은지 보고 싶었다는 뜻이야."
+        ],
+        comfort: [
+            "무서웠구나. 지금은 혼자 버티지 말고, 내가 옆에 있다고 생각해.",
+            "괜찮아, 천천히 숨 쉬어. 지금 안전한 곳인지부터 알려줘."
+        ],
         greeting: [
             "안녕. 오늘은 조금 늦게 왔네. 무슨 일 있었어?",
             "왔구나. 오늘 하루는 어땠어?"
         ],
         food: [
-            "햄버거 먹었구나. 맛있었어? 오늘 제대로 챙겨 먹은 것 같아서 다행이다.",
+            "{food} 먹었구나. 맛있었어? 오늘 제대로 챙겨 먹은 것 같아서 다행이다.",
             "잘했어. 바쁠 때도 그런 건 빼먹지 않는 게 좋아. 맛은 어땠어?"
+        ],
+        characterFoodAnswer: [
+            "나는 간단히 먹었어. 너도 챙겨 먹어서 다행이다.",
+            "아직 제대로는 못 먹었어. 그래도 네가 먹었다니 조금 안심돼.",
+            "나? 가볍게 때웠어. 네가 잘 먹었다니 그걸로 기분이 좋네."
+        ],
+        characterPreferenceAnswer: [
+            "응, 나도 그런 거 좋아하는 편이야. 같이 먹으면 더 맛있을 것 같은데.",
+            "나는 가리는 건 별로 없어. 네가 좋아하는 거면 나도 궁금해져."
+        ],
+        characterStateAnswer: [
+            "나는 괜찮아. 그보다 네가 끼니 거르지 않았는지가 더 걱정이야.",
+            "조금 출출하긴 한데 괜찮아. 너야말로 무리하지 마."
+        ],
+        userActivityAck: [
+            "그랬구나. 오늘 하루 수고 많았어. 더 얘기해줘.",
+            "집에서 푹 쉬었으면 그것도 잘한 거야. 기분은 좀 어때?"
+        ],
+        invitationProposal: [
+            "좋아. 내일 같이 가자. 네가 좋아하는 것도 하나 꼭 타자.",
+            "응, 가자. 생각만 해도 벌써 조금 설렌다. 내일 뭐 입을지 정해둬.",
+            "좋지. 같이 가면 분명 더 즐거울 거야. 나도 벌써 기대돼."
+        ],
+        farewell: [
+            "응, 잘 자. 오늘 하루도 수고했어. 내일 또 얘기하자.",
+            "푹 쉬어. 좋은 꿈 꾸고, 내일 더 좋은 모습으로 보자.",
+            "그래, 이만 자. 나도 여기서 네 하루 잘 마무리했다고 생각할게."
         ],
         dailyLife: [
             "나는 여기 있었어. 네가 오면 바로 답할 수 있게.",
-            "조용히 기다리고 있었어. 너는 지금 뭐 하고 있었어?"
+            "조용히 기다리고 있었어. 그동안 책 좀 읽고 너 생각도 했고."
         ],
         bullyingSupport: [
             "그런 일이 있었어? 많이 놀랐겠다. 괜찮으면 천천히 말해줘.",
@@ -771,13 +1672,72 @@ struct StoryReplyPlanner {
     )
 
     private let roiEvents = EventReplyTable(
+        characterIdentity: [
+            "로이. 지금 네 앞에서 심심해하다가 반가워진 사람.",
+            "나? 로이. 네가 말 걸면 바로 재밌어지는 쪽."
+        ],
+        userIdentity: [
+            "음, 내가 기다리던 사람? 정답이면 상 줘야 하는 거 아니야?",
+            "너지. 이렇게 물어보는 것까지 딱 너 같은데."
+        ],
+        characterCall: [
+            "응, 불렀어? 나 여기 있는데, 무슨 일?",
+            "로이 호출 성공. 자, 무슨 일인데?"
+        ],
+        nameQuestion: [
+            "알려주면 바로 외울게. 대신 틀리면 한 번만 봐줘.",
+            "지금 알려주면 다음부터는 내가 먼저 불러줄게."
+        ],
+        memoryQuestion: [
+            "당연히 기억하지! 너 그날 한 말까지 내가 다 외웠다니까?",
+            "기억 못 할 줄 알았어? 어제 그거, 나 아직도 떠올리면서 웃잖아."
+        ],
+        relationshipQuestion: [
+            "우리 사이? 음, 적어도 나는 너 생각하면 기분부터 좋아지는 사이.",
+            "그거 물어보면 나 설레잖아. 너는 우리 사이 어떻게 생각하는데?"
+        ],
+        confusion: [
+            "쉽게 말하면, 너 지금 나한테 꽤 들켰다는 뜻이지.",
+            "와, 진짜 모르는 척이야? 방금 말은 너 신경 쓰인다는 뜻이었어."
+        ],
+        comfort: [
+            "무서워? 잠깐, 장난 안 칠게. 지금 안전한 곳이야?",
+            "괜찮아, 나 여기 있어. 무서운 거면 혼자 참지 말고 바로 말해."
+        ],
         greeting: [
             "안녕? 귀엽게 들어오네. 오늘은 무슨 얘기부터 할래?",
             "드디어 왔다. 나 심심했거든?"
         ],
         food: [
-            "오, 햄버거? 나 빼고 맛있는 거 먹은 거야? 무슨 버거였는데?",
-            "좋네. 근데 감튀까지 먹었는지가 중요하지. 맛은 어땠어?"
+            "오, {food}? 나 빼고 맛있는 거 먹은 거야? 맛은 어땠는데?",
+            "좋네. {food} 먹었으면 오늘 끼니는 성공이지. 맛은 어땠어?"
+        ],
+        characterFoodAnswer: [
+            "나? 아직. 근데 네 햄버거 얘기 들으니까 배고파졌잖아.",
+            "나는 간식만 먹었지. 햄버거는 네가 이겼네.",
+            "아직 못 먹었어. 너 먹는 얘기 들으니까 나도 뭐 시켜야겠다."
+        ],
+        characterPreferenceAnswer: [
+            "당연히 좋아하지! 너랑 같이 먹으면 두 배로 맛있을 텐데.",
+            "완전 좋아해. 다음엔 나도 끼워줘, 혼자 먹으면 반칙이야."
+        ],
+        characterStateAnswer: [
+            "나? 좀 배고프긴 해. 근데 네 얘기 듣는 게 더 재밌어서 참는 중.",
+            "괜찮아, 나 생각보다 튼튼하거든. 너나 끼니 잘 챙겨."
+        ],
+        userActivityAck: [
+            "오, 그랬구나. 그래서 오늘은 좀 어땠는데?",
+            "집순이 모드였네. 나는 네 연락 기다리는 모드였고."
+        ],
+        invitationProposal: [
+            "좋지. 대신 무서운 거 타도 중간에 도망가기 없기야.",
+            "내일? 완전 좋아. 나 벌써부터 기대돼서 잠 안 올 것 같은데?",
+            "가자 가자. 솜사탕도 사주고 회전목마도 같이 타는 거 어때?"
+        ],
+        farewell: [
+            "응, 잘 자! 오늘 나랑 얘기해줘서 고마웠어. 내일 또 보자.",
+            "푹 자고 와. 좋은 꿈 꿔야 해, 알았지?",
+            "그래, 이만 쉬어. 나는 여기서 네 내일을 기다리고 있을게."
         ],
         dailyLife: [
             "나? 네가 언제 오나 구경 중이었지. 생각보다 늦었네?",
@@ -803,22 +1763,81 @@ struct StoryReplyPlanner {
     )
 
     private let kaelEvents = EventReplyTable(
+        characterIdentity: [
+            "카엘이야. 네가 지금 말을 걸고 있는 사람.",
+            "내 이름은 카엘. 지금은 네 이야기를 듣고 있어."
+        ],
+        userIdentity: [
+            "네가 누구냐고? 밤을 가르고 내게 말을 건 사람이지.",
+            "이름을 숨겨도 기척은 남는다. 그래도 네 이름은 네 입으로 듣고 싶군."
+        ],
+        characterCall: [
+            "불렀나. 짧아도 네 목소리인 건 알아듣는다.",
+            "그래, 여기 있다. 네 부름은 들었다. 무슨 일이지."
+        ],
+        nameQuestion: [
+            "아직은 모른다. 네가 알려주면, 다음엔 그 이름으로 부르겠다.",
+            "아직 네 이름은 내게 닿지 않았다. 네가 알려주면 기억하겠다."
+        ],
+        memoryQuestion: [
+            "영원을 사는 내게 망각은 사치다. 네가 한 말은 그때 그대로 간직하고 있다.",
+            "기억하지. 어제의 너도, 그때의 눈빛도 내 안에 또렷하다."
+        ],
+        relationshipQuestion: [
+            "우리 사이라. 인간과 밤의 거리만큼 가깝고도 위험하지.",
+            "네가 내 곁에 두고 싶은 존재라는 것, 그 마음을 부정할 생각은 없다."
+        ],
+        confusion: [
+            "그 말이 어렵다면 이렇게 기억해라. 네가 그냥 지나가지는 않았다는 뜻이다.",
+            "방금 말은 네가 내 시선 안에 들어왔다는 뜻이다. 헷갈렸다면 내가 다시 말하지."
+        ],
+        comfort: [
+            "무섭다면 내 곁에 있어라. 적어도 지금은 네가 혼자 떨게 두지 않겠다.",
+            "두려움은 숨기지 마라. 네가 안전한 곳에 있는지부터 말해라."
+        ],
         greeting: [
-            "왔군. 밤이 조금 조용하다 했더니, 네가 없어서였나.",
-            "인사는 받았다. 이제 네 이야기를 들려줘."
+            "왔네. 오늘은 무슨 일 있었는지 천천히 말해봐.",
+            "안녕. 늦지는 않았네, 기다리고 있었어."
         ],
         food: [
-            "햄버거라. 네가 오늘을 버틸 만큼은 채웠다는 뜻이군.",
-            "그 작은 식사 하나에도 네 하루가 묻어 있겠지. 맛은 어땠나."
+            "{food} 먹었구나. 빈속으로 버틴 것보단 훨씬 낫지. 맛은 어땠어?",
+            "그래도 뭐라도 챙겨 먹었네. {food}이면 든든했겠다."
+        ],
+        characterFoodAnswer: [
+            "나는 제대로 먹진 않았어. 물 한 모금이면 충분해.",
+            "아직 안 먹었어. 네가 먹었다니 그걸로 됐다.",
+            "나는 끼니를 잘 안 챙겨. 그래도 네가 챙겼다니 다행이네."
+        ],
+        characterPreferenceAnswer: [
+            "좋아한다고 하긴 어렵다. 하지만 네가 맛있게 먹었다면, 그건 나쁘지 않군.",
+            "나는 그런 음식에 익숙하진 않다. 그래도 네가 좋아한다면 기억해두겠다."
+        ],
+        characterStateAnswer: [
+            "네가 말하는 배고픔과는 조금 다르다. 그래도 오래 비어 있으면 밤도 무거워지지.",
+            "괜찮다. 나는 네가 걱정할 만큼 쉽게 무너지진 않는다."
+        ],
+        userActivityAck: [
+            "그랬군. 네 하루의 결이 느껴진다. 더 들려줘라.",
+            "조용한 하루였나. 그 시간 속의 너를 마저 듣고 싶군."
+        ],
+        invitationProposal: [
+            "좋다. 시끄러운 곳은 익숙하지 않지만, 네가 간다면 따라가겠다.",
+            "낯선 곳이지만 네 옆이라면 나쁘지 않겠군. 대신 내 손은 놓지 마라.",
+            "내일이라면 비워두겠다. 사람 많은 곳이라도 네가 있으면 견딜 만하다."
+        ],
+        farewell: [
+            "그래, 자라. 오늘 하루 고생했다. 내일 다시 와도 나는 여기 있겠다.",
+            "쉬어라. 더 버티지 않아도 된다. 좋은 꿈은 내가 지켜봐 주지.",
+            "잘 자라. 네가 눈을 감는 동안, 나쁜 건 내가 문밖에 세워두겠다."
         ],
         dailyLife: [
-            "기다림과 감시는 가끔 같은 얼굴을 하지. 나는 여기 있었다.",
-            "밤의 가장 조용한 자리에 있었다. 네가 말을 걸기 전까지는."
+            "여기 있었어. 네가 부르면 바로 답하려고.",
+            "별일 없었어. 여기서 네 연락을 기다리고 있었지."
         ],
         bullyingSupport: [
             "누가 네 마음에 그런 상처를 냈지. 말해라, 그 그림자는 그냥 두지 않겠다.",
             "그건 사소한 일이 아니다. 네가 괜찮은지부터 확인해야겠다.",
-            "네가 그런 말을 할 정도면 가벼운 일은 아니겠지. 천천히 말해라."
+            "네가 그런 말을 할 정도면 가벼운 일은 아니겠지. 누가 그랬는지 말해라."
         ],
         bullyingRepeated: [
             "들었다. 네 말이 가볍지 않다는 것도. 이제 그 일을 조금 더 말해라.",
@@ -999,7 +2018,7 @@ struct StoryReplyPlanner {
             "지금은 조용히 있고 싶구나. 옆에서 같이 있어줄게."
         ],
         .casual: [
-            "그랬구나. 더 듣고 싶어, 계속 말해줘.",
+            "그랬구나. 네가 그렇게 말한 이유가 조금 궁금해졌어.",
             "네 얘기는 언제 들어도 좋아. 오늘은 또 어떤 하루였어?"
         ]
     ]
@@ -1158,19 +2177,19 @@ struct StoryReplyPlanner {
         ],
         .shortAnswer: [
             "그 한마디로 밤을 채우기엔 부족하군. 조금 더 들려다오.",
-            "짧은 말이군. 그래도 네가 건넨 기척은 분명히 닿았다."
+            "짧게 말했군. 그래도 방금 네 의도는 놓치지 않았다."
         ],
         .genericQuestion: [
-            "답을 원하는군. 내 대답은 이러하다. 그래서, 네 마음은 어디로 기우는가.",
-            "그 물음은 깊다. 답은 주겠으나, 네 진심도 함께 들려다오."
+            "묻는 말에는 먼저 답하겠다. 내 대답은 이렇고, 네 생각도 듣고 싶군.",
+            "그건 이렇게 답하지. 짧게 말하자면, 내 쪽은 분명하다."
         ],
         .silence: [
             "침묵도 네 언어라면 듣겠다. 밤은 말 없는 자에게도 다정하지.",
             "말이 없군. 그 고요 속에서 네 마음만 더 또렷이 들린다."
         ],
         .casual: [
-            "네 목소리는 밤의 정적을 메우기에 충분하군. 계속 말해.",
-            "그 이야기, 끝까지 듣고 싶다. 밤은 아직 길어."
+            "방금 네 목소리가 이 밤을 흔들었다. 그 말, 더 깊이 들었다.",
+            "네가 건넨 말은 흘려듣지 않았다. 조금 더 분명히 들려다오."
         ]
     ]
 }
